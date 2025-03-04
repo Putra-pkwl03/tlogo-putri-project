@@ -9,7 +9,7 @@ Spesifikasi Proyek
 
 Cara Menjalankan Proyek
 
-Clone and Fork Repository
+Clone dan atau Fork Repository
 ```sh
 git clone https://github.com/putrapkwl114117/telogo-putri-project.git
 cd telogo-putri-project
