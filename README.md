@@ -1,4 +1,4 @@
-Telogo Putri - Bakend (Laravel 12)
+Telogo Putri Project - Bakend (Laravel 12)
 
 Spesifikasi Proyek
 - Framework: Laravel 12.0.1
