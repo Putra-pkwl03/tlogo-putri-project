@@ -7,7 +7,7 @@ Spesifikasi Proyek
 - Composer: 2.8.4
 - phpMyAdmin: 6.0+
 
-- downlaod laragon v.6.0: https://github.com/leokhoa/laragon/discussions/737
+- downlaod laragon v.6.0: [https://github.com/leokhoa/laragon/discussions/737](https://github.com/leokhoa/laragon/releases/download/6.0.0/laragon-wamp.exe)
 
 Cara Menjalankan Proyek
 
