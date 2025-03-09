@@ -7,6 +7,8 @@ Spesifikasi Proyek
 - Composer: 2.8.4
 - phpMyAdmin: 6.0+
 
+- downlaod laragon v.6.0: https://github.com/leokhoa/laragon/discussions/737
+
 Cara Menjalankan Proyek
 
 Clone dan atau Fork Repository
