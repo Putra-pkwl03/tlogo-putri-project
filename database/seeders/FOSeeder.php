@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\FO;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash; 
 
 class FOSeeder extends Seeder
@@ -14,7 +14,7 @@ class FOSeeder extends Seeder
      */
     public function run(): void
     {
-         FO::create([
+         User::create([
             'name' => 'tp kaliurang',
             'email' => 'tlogoputri@gmail.com',
             'password' => Hash::make('tlogoputri000')

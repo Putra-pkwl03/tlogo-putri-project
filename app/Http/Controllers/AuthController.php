@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\FO;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Http\Request;
