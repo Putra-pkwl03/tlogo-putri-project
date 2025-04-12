@@ -1,4 +1,4 @@
-Telogo Putri - Bakend (Laravel 12)
+Telogo Putri Project - Bakend (Laravel 12)
 
 Spesifikasi Proyek
 - Framework: Laravel 12.0.1
@@ -7,9 +7,11 @@ Spesifikasi Proyek
 - Composer: 2.8.4
 - phpMyAdmin: 6.0+
 
+- downlaod laragon v.6.0: [https://github.com/leokhoa/laragon/discussions/737](https://github.com/leokhoa/laragon/releases/download/6.0.0/laragon-wamp.exe)
+
 Cara Menjalankan Proyek
 
-Clone and Fork Repository
+Clone dan atau Fork Repository
 ```sh
 git clone https://github.com/putrapkwl114117/telogo-putri-project.git
 cd telogo-putri-project
