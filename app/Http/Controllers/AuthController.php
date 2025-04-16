@@ -26,6 +26,7 @@ class AuthController extends Controller
     }
 
     // Register
+    #TAMBAHKAN LOGIKA AUTHENTICATEION MENGGUNAKN JWT TOKEN SEBELUM MELAKUKAN REGISTRASI
     public function register(Request $request)
     {
         $request->validate([

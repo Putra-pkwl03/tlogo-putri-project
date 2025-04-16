@@ -7,6 +7,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject; 
 
+
+
+// KALAU ADA PERUBHAN DI DB SEBAIKNYA MIGRATE ROLLBACK BIAR TABEL DN CODE BERSI JANGAN LANGSUNG UPDATE
 class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
