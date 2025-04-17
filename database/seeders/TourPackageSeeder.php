@@ -34,7 +34,7 @@ class TourPackageSeeder extends Seeder
                 'package_name' => 'Tour Package 3',
                 'description' => 'Description for tour package 3',
                 'price' => 200000,
-                'is_active' => false,
+                'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

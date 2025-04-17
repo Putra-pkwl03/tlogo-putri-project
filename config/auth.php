@@ -42,7 +42,7 @@ return [
         ],
         'fo' => [
             'driver' => 'jwt',
-            'provider' => 'fo',
+            'provider' => 'users',
         ],
     ],
 
