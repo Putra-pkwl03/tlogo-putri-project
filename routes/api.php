@@ -1,9 +1,9 @@
 <?php
 
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BookingController;
 
 Route::post('/fo/login', [AuthController::class, 'login']);
 Route::get('/fo/profile', [AuthController::class, 'profile'])->middleware('auth:fo');
@@ -22,3 +22,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('me', [AuthController::class, 'me']);
     Route::post('logout', [AuthController::class, 'logout']);
 });
+
+Route::post('/checkout', [BookingController::class, 'checkout']);
