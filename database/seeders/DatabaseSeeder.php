@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -17,8 +19,25 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Mohammad Sobri',
+            'username' => 'Rild',
+            'email' => 'sobrimuhammad19@gmail.com',
+            'email_verified_at' => now(),
+            'password' => Hash::make('@neymarjr'),
+            'role' => 'DRIVER',
+            'alamat' => 'Gamping',
+            'no_ktp' => '3201234567',
+            'telepon' => '0851234567',
+            'foto_profil' => null,
+            'tanggal_bergabung' => now()->toDateString(),
+            'status' => 'Aktif',
+            'jabatan' => null,
+            'jumlah_jeep' => null,
+            'plat_jeep' => null,
+            'foto_jeep' => null,
+            'remember_token' => Str::random(10),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 }
