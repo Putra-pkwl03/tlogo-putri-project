@@ -7,6 +7,7 @@ use App\Models\Booking;
 use App\Models\PaymentTransaction;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class BookingController extends Controller
 {
@@ -119,10 +120,38 @@ class BookingController extends Controller
                     $order->booking_status = $transactionStatus;
                     $order->payment_status = 'paid';
                     $order->save();
+
+                    if (in_array($transactionStatus, ['capture', 'settlement'])) {
+                        $this->sendPaymentReceipt($order, $paymentTransaction);
+                    }
                 }
             }
         }
     
         return response()->json(['message' => 'Notification processed.']);
     }
+
+    protected function sendPaymentReceipt($order, $transaction)
+    {
+        $emailData = [
+            'name' => $order->customer_name,
+            'order_id' => $transaction->order_id,
+            'amount' => $transaction->amount,
+            'payment_type' => $order->payment_type,
+            'tour_date' => $order->tour_date,
+            'is_dp' => $order->payment_type === 'dp',
+            'remaining_url' => $order->payment_type === 'dp'
+                ? url('/pelunasan/' . $order->id)
+                : null,
+        ];
+
+        try {
+            Mail::to($order->customer_email)->send(new \App\Mail\PaymentReceiptMail($emailData));
+            Log::info("Email sent to " . $order->customer_email);
+        } catch (\Exception $e) {
+            Log::error("Email failed to send to " . $order->customer_email . " with error: " . $e->getMessage());
+        }
+        
+    }
+
 }
