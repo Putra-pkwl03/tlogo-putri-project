@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PaymentTransaction extends Model
 {
     protected $table = 'payment_transactions';
+    protected $primaryKey = 'transaction_id';
     
     protected $fillable = [
         'booking_id',

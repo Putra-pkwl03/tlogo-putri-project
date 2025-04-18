@@ -92,4 +92,37 @@ class BookingController extends Controller
             
 
     }
+
+    public function midtransNotif(Request $request)
+    {
+        $serverKey = config('midtrans.server_key');
+    
+        $payload = $request->all();
+    
+        $orderId = $payload['order_id'];
+        $statusCode = $payload['status_code'];
+        $grossAmount = $payload['gross_amount'];
+        $signatureKey = $payload['signature_key'];
+        $transactionStatus = $payload['transaction_status'];
+    
+        $hashed = hash("sha512", $orderId . $statusCode . $grossAmount . $serverKey);
+    
+        if ($hashed === $signatureKey) {
+            $paymentTransaction = PaymentTransaction::where('order_id', $orderId)->first();
+        
+            if ($paymentTransaction) {
+                $paymentTransaction->status = $transactionStatus;
+                $paymentTransaction->save();
+            
+                $order = Booking::find($paymentTransaction->booking_id);
+                if ($order) {
+                    $order->booking_status = $transactionStatus;
+                    $order->payment_status = 'paid';
+                    $order->save();
+                }
+            }
+        }
+    
+        return response()->json(['message' => 'Notification processed.']);
+    }
 }
