@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['OWNER', 'DRIVER', 'PENGURUS', 'BENDAHARA', 'FO'])->nullable(); // Ubah jika perlu
             $table->string('alamat')->nullable();
-            $table->string('no_ktp')->nullable();
             $table->string('telepon')->nullable();
             $table->string('foto_profil')->nullable();
             $table->date('tanggal_bergabung')->nullable();

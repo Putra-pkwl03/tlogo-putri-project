@@ -26,7 +26,6 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('@neymarjr'),
             'role' => 'DRIVER',
             'alamat' => 'Gamping',
-            'no_ktp' => '3201234567',
             'telepon' => '0851234567',
             'foto_profil' => null,
             'tanggal_bergabung' => now()->toDateString(),
