@@ -20,10 +20,10 @@ class Controller extends \Illuminate\Routing\Controller
 
         $roleFields = [
             'FO' => [],
-            'OWNER' => ['alamat', 'no_ktp', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung', 'jumlah_jeep'],
-            'DRIVER' => ['alamat', 'no_ktp', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung', 'plat_jeep', 'foto_jeep'],
-            'PENGURUS' => ['alamat', 'no_ktp', 'telepon', 'foto_profil', 'jabatan'],
-            'BENDAHARA' => ['alamat', 'no_ktp', 'telepon', 'foto_profil', 'jabatan'],
+            'OWNER' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung', 'jumlah_jeep'],
+            'DRIVER' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung', 'plat_jeep', 'foto_jeep'],
+            'PENGURUS' => ['alamat', 'telepon', 'foto_profil', 'jabatan'],
+            'BENDAHARA' => ['alamat', 'telepon', 'foto_profil', 'jabatan'],
         ];
 
         $role = $request->input('role');

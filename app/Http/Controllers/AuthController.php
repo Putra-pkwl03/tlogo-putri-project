@@ -26,7 +26,6 @@ class AuthController extends Controller
     }
 
     // Register
-    #TAMBAHKAN LOGIKA AUTHENTICATEION MENGGUNAKN JWT TOKEN SEBELUM MELAKUKAN REGISTRASI
     public function register(Request $request)
     {
         $request->validate([
@@ -35,7 +34,6 @@ class AuthController extends Controller
             'password' => 'required|min:6',
             'role' => 'required|string',
             'alamat' => 'nullable|string',
-            'no_ktp' => 'nullable|string',
             'telepon' => 'nullable|string',
             'foto_profil' => 'nullable|file',
             'status' => 'nullable|string',
@@ -53,7 +51,6 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'alamat' => $request->alamat,
-            'no_ktp' => $request->no_ktp,
             'telepon' => $request->telepon,
             'foto_profil' => $request->foto_profil,
             'status' => $request->status,
@@ -80,14 +77,23 @@ class AuthController extends Controller
     }
 
     // Logout
-    public function logout()
-    {
-        Auth::guard('fo')->logout();
+    public function logout(Request $request)
+{
+    try {
+        JWTAuth::invalidate(JWTAuth::getToken());
+
         return response()->json([
             'success' => true,
-            'message' => 'Anda telah berhasil logout.'
+            'message' => 'Logout berhasil, token dihapus.'
         ]);
+    } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Logout gagal, token tidak valid.',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
     // Refresh token
     public function refresh()
@@ -99,11 +105,13 @@ class AuthController extends Controller
     // Helper untuk return token JWT
     protected function respondWithToken($token)
     {
+        $user = Auth::guard('fo')->user();
         return response()->json([
             'success' => true,
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => config('jwt.ttl') * 60
+            'expires_in' => config('jwt.ttl') * 60,
+            'role' => $user->role
         ]);
     }
 
