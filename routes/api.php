@@ -24,3 +24,4 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::post('/checkout', [BookingController::class, 'checkout']);
+Route::post('/midtrans-notification', [BookingController::class, 'midtransNotif']);
