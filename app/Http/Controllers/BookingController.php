@@ -8,6 +8,7 @@ use App\Models\PaymentTransaction;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class BookingController extends Controller
 {
@@ -145,8 +146,10 @@ class BookingController extends Controller
                 : null,
         ];
 
+        $pdf = PDF::loadView('pdf.payment_receipt', compact('order', 'transaction'));
+
         try {
-            Mail::to($order->customer_email)->send(new \App\Mail\PaymentReceiptMail($emailData));
+            Mail::to($order->customer_email)->send(new \App\Mail\PaymentReceiptMail($emailData, $pdf));
             Log::info("Email sent to " . $order->customer_email);
         } catch (\Exception $e) {
             Log::error("Email failed to send to " . $order->customer_email . " with error: " . $e->getMessage());

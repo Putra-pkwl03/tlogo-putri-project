@@ -18,17 +18,24 @@ class PaymentReceiptMail extends Mailable
      * Create a new message instance.
      */
     public $emailData;
+    public $pdf;
 
-    public function __construct($emailData)
+    public function __construct($emailData, $pdf)
     {
         $this->emailData = $emailData;
+        $this->pdf = $pdf;
     }
 
         public function build()
     {
         Log::info('Mengirim email dengan view emails.payment_receipt');
-        return $this->subject('Bukti Pembayaran Jeep Tour')
-                    ->view('emails.payment_receipt');
+        return $this->subject( 'Bukti Pembayaran Transaksi Jeep Tour  (' . $this->emailData['order_id'] . ')')
+                    ->view('emails.payment_receipt')
+                    ->with('emailData', $this->emailData)
+                    ->attachData($this->pdf->output(), 'bukti_pembayaran.pdf', [
+                        'mime' => 'application/pdf',
+                    ]);
+
     }
 
     /**
@@ -37,7 +44,7 @@ class PaymentReceiptMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Payment Receipt Mail',
+            subject: 'Bukti Pembayaran Transaksi Jeep Tour  (' . $this->emailData['order_id'] . ')',
         );
     }
 
