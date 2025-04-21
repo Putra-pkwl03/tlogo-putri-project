@@ -18,20 +18,19 @@ return new class extends Migration
             $table->string('customer_email', 100);
             $table->string('customer_phone', 20);
             $table->unsignedBigInteger('package_id');
-            $table->dateTime('booking_date')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->date('tour_date');
             $table->time('start_time');
+            $table->integer('qty');
             $table->decimal('gross_amount', 10, 2);
             $table->string('booking_status', 20)->default('pending');
             $table->string('order_id', 20)->unique();
             $table->enum('payment_status', ['paid', 'unpaid'])->default('unpaid');
             $table->enum('payment_type', ['dp', 'full']);
             $table->decimal('dp_amount', 10, 2);
-            $table->boolean('is_fully_paid');
+            $table->boolean('is_fully_paid')->default(false);
             $table->dateTime('due_date');
-            $table->boolean('is_refundable');
-            $table->string('refund_status', 20);
             $table->string('referral', 50)->nullable();
+            $table->string('voucher', 50)->nullable();
             $table->timestamps();
 
             $table->foreign('package_id')->references('id')->on('tour_packages')->onDelete('cascade');
