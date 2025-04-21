@@ -119,4 +119,53 @@ class AuthController extends Controller
     {
         return response()->json(Auth::user());
     }
+
+
+
+    // fungsi editing data dan role 
+    public function update(Request $request)
+{
+    $user = Auth::guard('fo')->user();
+
+    $request->validate([
+        'name' => 'nullable|string',
+        'alamat' => 'nullable|string',
+        'email' => 'nullable|email|unique:users,email,' . $user->id,
+        'telepon' => 'nullable|string',
+        'foto_profil' => 'nullable|file',
+        'plat_jeep' => 'nullable|string',
+        'foto_jeep' => 'nullable|file',
+        'jumlah_jeep' => 'nullable|string',
+        'jabatan' => 'nullable|string',
+        // Jangan validasi status dulu, kita cek manual di bawah
+    ]);
+
+    // Data yang boleh diupdate semua role
+    $dataToUpdate = $request->only([
+        'name', 'alamat', 'email', 'telepon', 'plat_jeep', 'jumlah_jeep', 'jabatan'
+    ]);
+
+    // Hanya role 'fo' yang boleh update 'status'
+    if ($user->role === 'fo' && $request->has('status')) {
+        $dataToUpdate['status'] = $request->status;
+    }
+
+    // Handle file upload
+    if ($request->hasFile('foto_profil')) {
+        $dataToUpdate['foto_profil'] = $request->file('foto_profil')->store('foto_profil', 'public');
+    }
+
+    if ($request->hasFile('foto_jeep')) {
+        $dataToUpdate['foto_jeep'] = $request->file('foto_jeep')->store('foto_jeep', 'public');
+    }
+
+    $user->update($dataToUpdate);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Data user berhasil diperbarui.',
+        'data' => $user
+    ]);
+}
+
 }
