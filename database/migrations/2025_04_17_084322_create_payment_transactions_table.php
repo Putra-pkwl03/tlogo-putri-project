@@ -16,11 +16,10 @@ return new class extends Migration
             $table->unsignedBigInteger('booking_id');
             $table->string('order_id', 50);
             $table->decimal('amount', 10, 2);
-            $table->string('payment_type', 50)->nullable();
-            $table->enum('payment_for', ['dp', 'full'] )->default('dp');
-            $table->dateTime('transaction_time')->nullable();
-            $table->string('status', 20)->nullable();
-            $table->string('payment_gateway', 20)->nullable();
+            $table->enum('payment_for', ['dp', 'full', 'remaining'] )->default('dp');
+            $table->string('status', 20);
+            $table->string('channel', 20)->nullable();
+            $table->datetime('expired_time')->nullable();
             $table->string('snap_token', 255)->nullable();
             $table->string('redirect_url', 255)->nullable();
             $table->timestamps();
