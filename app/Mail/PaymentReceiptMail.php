@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
@@ -26,18 +27,6 @@ class PaymentReceiptMail extends Mailable
         $this->pdf = $pdf;
     }
 
-        public function build()
-    {
-        Log::info('Mengirim email dengan view emails.payment_receipt');
-        return $this->subject( 'Bukti Pembayaran Transaksi Jeep Tour  (' . $this->emailData['order_id'] . ')')
-                    ->view('emails.payment_receipt')
-                    ->with('emailData', $this->emailData)
-                    ->attachData($this->pdf->output(), 'bukti_pembayaran.pdf', [
-                        'mime' => 'application/pdf',
-                    ]);
-
-    }
-
     /**
      * Get the message envelope.
      */
@@ -53,8 +42,12 @@ class PaymentReceiptMail extends Mailable
      */
     public function content(): Content
     {
+        Log::info('Mengirim email dengan view emails.payment_receipt');
         return new Content(
             view: 'emails.payment_receipt',
+            with: [
+                'emailData' => $this->emailData,
+            ]
         );
     }
 
@@ -65,6 +58,9 @@ class PaymentReceiptMail extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        return [
+            Attachment::fromData(fn () => $this->pdf->output(), 'bukti_pembayaran.pdf')
+                ->withMime('application/pdf'),
+        ];
     }
 }

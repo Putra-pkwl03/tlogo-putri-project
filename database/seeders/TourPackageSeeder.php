@@ -17,7 +17,7 @@ class TourPackageSeeder extends Seeder
             [
                 'package_name' => 'Tour Package 1',
                 'description' => 'Description for tour package 1',
-                'price' => 100000,
+                'price' => 450000,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -25,7 +25,7 @@ class TourPackageSeeder extends Seeder
             [
                 'package_name' => 'Tour Package 2',
                 'description' => 'Description for tour package 2',
-                'price' => 150000,
+                'price' => 400000,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -33,7 +33,7 @@ class TourPackageSeeder extends Seeder
             [
                 'package_name' => 'Tour Package 3',
                 'description' => 'Description for tour package 3',
-                'price' => 200000,
+                'price' => 350000,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
