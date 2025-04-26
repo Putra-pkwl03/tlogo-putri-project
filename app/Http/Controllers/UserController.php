@@ -18,11 +18,11 @@ class UserController extends Controller
             'username' => 'required|string|max:25|unique:users',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6',
-            'role' => 'required|in:Fo,Owner,Driver,Pengurus',
+            'role' => 'required|in:Front Office,Owner,Driver,Pengurus',
         ];
 
         $roleFields = [
-            'Fo' => [],
+            'Front Office' => [],
             'Owner' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung', 'jumlah_jeep'],
             'Driver' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung', 'plat_jeep', 'foto_jeep'],
             'Pengurus' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung'],
@@ -82,7 +82,7 @@ class UserController extends Controller
 
         // Cek role dan sesuaikan data yang ingin ditampilkan
         switch ($user->role) {
-            case 'Fo':
+            case 'Front Office':
                 $data = [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -169,7 +169,7 @@ class UserController extends Controller
         // Map data sesuai role
         $data = $users->map(function ($user) use ($role) {
             switch ($role) {
-                case 'Fo':
+                case 'Front Office':
                     return [
                         'id' => $user->id,
                         'name' => $user->name,
@@ -240,7 +240,7 @@ class UserController extends Controller
         $authUser = Auth::user();
 
         // Cek apakah FO atau bukan
-        if ($authUser->role === 'Fo') {
+        if ($authUser->role === 'Front Office') {
             // FO bisa update data siapa saja
             if (!$id) {
                 return response()->json([
@@ -284,7 +284,7 @@ class UserController extends Controller
         ]);
 
         // Kalau FO atau user yang update dirinya sendiri boleh update status
-        if (($authUser->role === 'Fo' || $authUser->id === $user->id) && $request->has('status')) {
+        if (($authUser->role === 'Front Office' || $authUser->id === $user->id) && $request->has('status')) {
             $dataToUpdate['status'] = $request->status;
         }
 
@@ -314,7 +314,7 @@ class UserController extends Controller
         $authUser = Auth::user();
 
         // Cek apakah user yang login adalah FO
-        if (!$authUser || $authUser->role !== 'Fo') {
+        if (!$authUser || $authUser->role !== 'Front Office') {
             return response()->json([
                 'success' => false,
                 'message' => 'Akses ditolak. Hanya FO yang dapat menghapus user.'

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->unique();
-            $table->enum('role', ['Fo', 'Owner', 'Driver', 'Pengurus']);
+            $table->enum('role', ['Front Office', 'Owner', 'Driver', 'Pengurus']);
             $table->string('alamat')->nullable();
             $table->string('telepon')->unique()->nullable();
             $table->string('foto_profil')->nullable();

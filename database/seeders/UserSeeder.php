@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
          User::create([
             'name' => 'tp kaliurang',
             'username' => 'tlogoputri',
-            'role' => 'Fo',
+            'role' => 'Front Office',
             'email' => 'tlogoputri@gmail.com',
             'password' => Hash::make('tlogoputri000'),
             'remember_token' => Str::random(10),
