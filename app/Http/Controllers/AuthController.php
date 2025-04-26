@@ -9,21 +9,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
-{
-    // Login FO
-    public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        // Login FO
+        public function login(Request $request)
+        {
+            $credentials = $request->only('email', 'password');
 
-        if (!$token = Auth::guard('fo')->attempt($credentials)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Login gagal. Email atau password salah.'
-            ], 401);
+            if (!$token = Auth::guard('fo')->attempt($credentials)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Login gagal. Email atau password salah.'
+                ], 401);
+            }
+
+            return $this->respondWithToken($token);
         }
-
-        return $this->respondWithToken($token);
-    }
 
     // Logout
     public function logout(Request $request)
@@ -63,7 +63,5 @@ class AuthController extends Controller
             'role' => $user->role
         ]);
     }
-
-}
 
 }

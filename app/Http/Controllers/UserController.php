@@ -62,18 +62,19 @@ class UserController extends Controller
 
     // Get all users (Hanya bisa diakses oleh FO yang login)
     public function all(Request $request)
-    {
-        $user = User::find(Auth::guard('fo')->id());
+{
+    $user = Auth::guard('fo')->user();
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. Token tidak valid atau tidak ada.'
-            ], 401);
-        }
-
-        return response()->json(User::all());
+    if (!$user || $user->role !== 'Front Office') {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Hanya Front Office yang dapat mengakses.'
+        ], 403);
     }
+
+    return response()->json(User::all());
+}
+
 
     // Get user (Hanya FO)
     public function me()
