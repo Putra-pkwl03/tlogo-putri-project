@@ -63,4 +63,7 @@ class AuthController extends Controller
             'role' => $user->role
         ]);
     }
+
+}
+
 }
