@@ -17,16 +17,15 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->enum('role', ['OWNER', 'DRIVER', 'PENGURUS', 'BENDAHARA', 'FO'])->nullable(); // Ubah jika perlu
+            $table->string('password')->unique();
+            $table->enum('role', ['Fo', 'Owner', 'Driver', 'Pengurus']);
             $table->string('alamat')->nullable();
-            $table->string('telepon')->nullable();
+            $table->string('telepon')->unique()->nullable();
             $table->string('foto_profil')->nullable();
             $table->date('tanggal_bergabung')->nullable();
             $table->string('status')->nullable();
-            $table->string('jabatan')->nullable(); // untuk PENGURUS & BENDAHARA
             $table->string('jumlah_jeep')->nullable(); // untuk OWNER
-            $table->string('plat_jeep')->nullable(); // untuk DRIVER
+            $table->string('plat_jeep')->unique()->nullable(); // untuk DRIVER
             $table->string('foto_jeep')->nullable(); // untuk DRIVER
             $table->rememberToken();
             $table->timestamps();
