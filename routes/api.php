@@ -32,6 +32,7 @@ Route::post('/orders/checkout', [BookingController::class, 'checkout']);
 Route::post('/midtrans-notification', [BookingController::class, 'midtransNotif']);
 Route::get('/orders/{order_id}/remaining-payment', [PaymentController::class, 'getRemainingPaymentInfo']);
 Route::post('/orders/{order_id}/remaining-payment', [PaymentController::class, 'startRemainingPayment']);
+
 Route::post('/checkout', [BookingController::class, 'checkout']);
 
 

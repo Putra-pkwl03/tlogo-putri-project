@@ -97,7 +97,8 @@ class BookingController extends Controller
         $serverKey = config('midtrans.server_key');
 
         $payload = $request->all();
-    
+        Log::info('Midtrans Notification Payload:', $request->all());
+
         $orderId = $payload['order_id'];
         $statusCode = $payload['status_code'];
         $grossAmount = $payload['gross_amount'];
@@ -118,7 +119,7 @@ class BookingController extends Controller
                 $paymentTransaction->expired_time = $expiredTime;
                 $paymentTransaction->save();
         
-                $order = Booking::find($paymentTransaction->booking_id);
+                $order = Booking::with('package')->find($paymentTransaction->booking_id);
                 if ($order) {
                     $order->booking_status = $transactionStatus;
         
@@ -156,10 +157,18 @@ class BookingController extends Controller
         $emailData = [
             'name' => $order->customer_name,
             'order_id' => $transaction->order_id,
-            'amount' => $transaction->amount,
             'payment_type' => $order->payment_type,
+            'payment_method' => $transaction->channel,
+            'payment_status' => $order->payment_status,
+            'expired_time' => $transaction->expired_time,
             'tour_date' => $order->tour_date,
-            'is_dp' => $order->payment_type === 'dp',
+            'package_type' => $order->package->package_name,
+            'package_price' => $order->package->price,
+            'start_time' => $order->start_time,
+            'qty'=> $order->qty,
+            'amount' => $transaction->amount,
+            'total_price' => $order->qty * $order->gross_amount,
+            'remain_amount' => $order->gross_amount - $order->dp_amount,
             'remaining_url' => $order->payment_type === 'dp'
                 ? url('/api/orders/' . urlencode($order->order_id) . '/remaining-payment')
                 : null,
