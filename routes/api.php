@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\JeepController;
 
 
 
@@ -26,6 +27,15 @@ Route::prefix('users')->middleware('auth:fo')->group(function () {
     Route::delete('/delete/{id}', [UserController::class, 'delete']); // Delete user
 });
 
+// JEEP CRUD GROUP
+Route::prefix('jeeps')->group(function () {
+    Route::post('/create', [JeepController::class, 'create']); // Create
+    Route::get('/all', [JeepController::class, 'index']); // Semua jeep
+    Route::get('/id/{id}', [JeepController::class, 'showById']); // Berdasarkan ID
+    Route::get('/status/{status}', [JeepController::class, 'showByStatus']); // Berdasarkan Status
+    Route::put('/update/{id}', [JeepController::class, 'update']); // Update
+    Route::delete('/delete/{id}', [JeepController::class, 'delete']); // Delete
+});
 
 // BOOKING / MIDTRANS
 Route::post('/orders/checkout', [BookingController::class, 'checkout']);
@@ -34,8 +44,3 @@ Route::get('/orders/{order_id}/remaining-payment', [PaymentController::class, 'g
 Route::post('/orders/{order_id}/remaining-payment', [PaymentController::class, 'startRemainingPayment']);
 
 Route::post('/checkout', [BookingController::class, 'checkout']);
-
-
-
-
-
