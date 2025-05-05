@@ -25,8 +25,6 @@ return new class extends Migration
             $table->date('tanggal_bergabung')->nullable();
             $table->string('status')->nullable();
             $table->string('jumlah_jeep')->nullable(); // untuk OWNER
-            $table->string('plat_jeep')->unique()->nullable(); // untuk DRIVER
-            $table->string('foto_jeep')->nullable(); // untuk DRIVER
             $table->rememberToken();
             $table->timestamps();
         });

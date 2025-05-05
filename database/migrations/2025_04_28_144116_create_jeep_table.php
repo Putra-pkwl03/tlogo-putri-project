@@ -11,6 +11,7 @@ class CreateJeepTable extends Migration
         Schema::create('jeeps', function (Blueprint $table) {
             $table->id('jeep_id'); // Primary Key untuk tabel jeeps
             $table->unsignedBigInteger('users_id'); // FK ke users
+            $table->string('no_lambung')->unique();
             $table->string('plat_jeep')->unique();
             $table->string('foto_jeep')->nullable();
             $table->string('merek');
