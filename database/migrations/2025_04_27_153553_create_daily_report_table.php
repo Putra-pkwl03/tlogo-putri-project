@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('daily_report', function (Blueprint $table) {
             $table->id('id_daily_report');
             $table->unsignedBigInteger('booking_id');
-            $table->unsignedBigInteger('payrol_id');
+            $table->unsignedBigInteger('salaries_id');
             $table->string('action');
             $table->integer('stomach_no')->nullable();
             $table->string('touring_packet', 100)->nullable();
@@ -36,7 +36,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('booking_id')->references('booking_id')->on('bookings')->onDelete('cascade');
-            $table->foreign('payroll_id')->references('payroll_id')->on('payrolls')->onDelete('cascade');
+            $table->foreign('salaries_id')->references('salaries_id')->on('salaries')->onDelete('cascade');
         });
     }
 
