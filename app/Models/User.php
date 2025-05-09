@@ -17,8 +17,7 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name', 'username', 'email', 'password', 'role',
         'alamat', 'telepon', 'foto_profil',
-        'status', 'tanggal_bergabung', 'jumlah_jeep',
-        'plat_jeep', 'foto_jeep', 'jabatan'
+        'status', 'tanggal_bergabung', 'jumlah_jeep'
     ];
 
     // Implementasi metode dari JWTSubject

@@ -12,6 +12,7 @@ class JeepController extends Controller
     {
         $request->validate([
             'users_id' => 'required|exists:users,id',
+            'no_lambung' => 'required|string|max:255',
             'plat_jeep' => 'required|string|max:255',
             'merek' => 'required|string|max:255',
             'tipe' => 'required|string|max:255',
@@ -22,6 +23,7 @@ class JeepController extends Controller
 
         $jeep = Jeep::create([
             'users_id' => $request->users_id,
+            'no_lambung' => $request->no_lambung,
             'plat_jeep' => $request->plat_jeep,
             'merek' => $request->merek,
             'tipe' => $request->tipe,
@@ -91,7 +93,7 @@ class JeepController extends Controller
         }
 
         $jeep->update($request->only([
-            'plat_jeep', 'merek', 'tipe', 'tahun_kendaraan', 'status', 'foto_jeep'
+            'no_lambung','plat_jeep', 'merek', 'tipe', 'tahun_kendaraan', 'status', 'foto_jeep'
         ]));
 
         return response()->json([

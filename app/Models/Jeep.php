@@ -13,6 +13,7 @@ class Jeep extends Model
 
     protected $fillable = [
         'users_id',
+        'no_lambung',
         'plat_jeep',
         'foto_jeep',
         'merek',

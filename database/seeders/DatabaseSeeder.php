@@ -31,8 +31,6 @@ class DatabaseSeeder extends Seeder
             'tanggal_bergabung' => now()->toDateString(),
             'status' => 'Aktif',
             'jumlah_jeep' => null,
-            'plat_jeep' => 'AB 3507 JF',
-            'foto_jeep' => null,
             'remember_token' => Str::random(10),
             'created_at' => now(),
             'updated_at' => now(),

@@ -13,6 +13,7 @@ class JeepSeeder extends Seeder
         DB::table('jeeps')->insert([
             [
                 'users_id' => 2,
+                'no_lambung' => 'JEP-001',
                 'plat_jeep' => 'AB 3507 JF',
                 'foto_jeep' => null,
                 'merek' => 'Jeep Wrangler',

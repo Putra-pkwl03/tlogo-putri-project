@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -24,7 +25,7 @@ class UserController extends Controller
         $roleFields = [
             'Front Office' => [],
             'Owner' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung', 'jumlah_jeep'],
-            'Driver' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung', 'plat_jeep', 'foto_jeep'],
+            'Driver' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung'],
             'Pengurus' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung'],
         ];
 
@@ -32,7 +33,7 @@ class UserController extends Controller
 
         if (isset($roleFields[$role])) {
             foreach ($roleFields[$role] as $field) {
-                $rules[$field] = in_array($field, ['foto_profil', 'foto_jeep'])
+                $rules[$field] = in_array($field, ['foto_profil'])
                     ? 'nullable|image|mimes:jpeg,png,jpg|max:2048'
                     : 'required|string';
             }
@@ -45,17 +46,10 @@ class UserController extends Controller
             $validated['foto_profil'] = $request->file('foto_profil')->store('profile_images', 'public');
         }
 
-        if ($request->hasFile('foto_jeep')) {
-            $validated['foto_jeep'] = $request->file('foto_jeep')->store('jeep_images', 'public');
-        }
-
         // Hash password
         $validated['password'] = Hash::make($validated['password']);
 
         $user = User::create($validated);
-
-        // Generate Token
-        // $token = JWTAuth::fromUser($user);
 
         return response()->json(compact('user'), 201);
     }
@@ -118,8 +112,6 @@ class UserController extends Controller
                     'telepon' => $user->telepon,
                     'alamat' => $user->alamat,
                     'foto_profil' => $user->foto_profil,
-                    'plat_jeep' => $user->plat_jeep,
-                    'foto_jeep' => $user->foto_jeep,
                     'tanggal_bergabung' => $user->tanggal_bergabung,
                     'status' => $user->status,
                     'role' => $user->role,
@@ -188,8 +180,6 @@ class UserController extends Controller
                         'telepon' => $user->telepon,
                         'alamat' => $user->alamat,
                         'foto_profil' => $user->foto_profil,
-                        'plat_jeep' => $user->plat_jeep,
-                        'foto_jeep' => $user->foto_jeep,
                         'tanggal_bergabung' => $user->tanggal_bergabung,
                         'status' => $user->status,
                         'role' => $user->role,
@@ -219,7 +209,6 @@ class UserController extends Controller
                         'telepon' => $user->telepon,
                         'alamat' => $user->alamat,
                         'foto_profil' => $user->foto_profil,
-                        'jabatan' => $user->jabatan,
                         'tanggal_bergabung' => $user->tanggal_bergabung,
                         'status' => $user->status,
                         'role' => $user->role,
@@ -240,15 +229,15 @@ class UserController extends Controller
     {
         $authUser = Auth::user();
 
-        // Cek apakah FO atau bukan
+        // Cek apakah Front Office atau bukan
         if ($authUser->role === 'Front Office') {
-            // FO bisa update data siapa saja
             if (!$id) {
                 return response()->json([
                     'success' => false,
                     'message' => 'ID user wajib disertakan untuk update oleh FO.'
                 ], 400);
             }
+
             $user = User::find($id);
             if (!$user) {
                 return response()->json([
@@ -257,46 +246,80 @@ class UserController extends Controller
                 ], 404);
             }
         } else {
-            // Selain FO, hanya bisa update dirinya sendiri
+            // Pengguna biasa hanya bisa update dirinya sendiri
             $user = $authUser;
+            if ($id && $authUser->id != $id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki izin untuk mengupdate data pengguna lain.'
+                ], 403);
+            }
+
+            // Batasi field yang boleh dikirim oleh non-FO
+            $allowedFields = ['name', 'username', 'email', 'password', 'telepon', 'alamat', 'foto_profil'];
+            $unexpectedFields = array_diff(array_keys($request->all()), $allowedFields);
+
+            if (!empty($unexpectedFields)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki izin untuk mengubah field: ' . implode(', ', $unexpectedFields)
+                ], 403);
+            }
+        }
+
+        // Aturan validasi
+        $rules = [
+            'name' => 'nullable|string|max:255',
+            'username' => 'nullable|string|max:25|unique:users,username,' . $user->id,
+            'email' => 'nullable|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6',
+            'alamat' => 'nullable|string',
+            'telepon' => 'nullable|string|unique:users,telepon,' . $user->id,
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ];
+
+        if ($authUser->role === 'Front Office') {
+            $rules += [
+                'role' => 'nullable|in:Front Office,OWNER,DRIVER,PENGURUS',
+                'status' => 'nullable|string',
+                'jumlah_jeep' => 'nullable|integer|min:0',
+            ];
         }
 
         // Validasi input
-        $request->validate([
-            'name' => 'nullable|string',
-            'alamat' => 'nullable|string',
-            'email' => 'nullable|email|unique:users,email,' . $user->id,
-            'telepon' => 'nullable|string',
-            'foto_profil' => 'nullable|file',
-            'plat_jeep' => 'nullable|string',
-            'foto_jeep' => 'nullable|file',
-            'jumlah_jeep' => 'nullable|string',
-            // 'status' validasi manual di bawah
-        ]);
+        $validator = Validator::make($request->all(), $rules);
 
-        // Data yang boleh diupdate semua role
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Siapkan data yang akan diupdate
         $dataToUpdate = $request->only([
             'name',
-            'alamat',
+            'username',
             'email',
+            'alamat',
             'telepon',
-            'plat_jeep',
-            'jumlah_jeep',
         ]);
 
-        // Kalau FO atau user yang update dirinya sendiri boleh update status
-        if (($authUser->role === 'Front Office' || $authUser->id === $user->id) && $request->has('status')) {
-            $dataToUpdate['status'] = $request->status;
+        if ($request->filled('password')) {
+            $dataToUpdate['password'] = Hash::make($request->password);
         }
 
-        // Handle upload foto_profil
+        if ($authUser->role === 'Front Office') {
+            $dataToUpdate += $request->only([
+                'role',
+                'status',
+                'jumlah_jeep',
+            ]);
+        }
+
         if ($request->hasFile('foto_profil')) {
             $dataToUpdate['foto_profil'] = $request->file('foto_profil')->store('foto_profil', 'public');
-        }
-
-        // Handle upload foto_jeep
-        if ($request->hasFile('foto_jeep')) {
-            $dataToUpdate['foto_jeep'] = $request->file('foto_jeep')->store('foto_jeep', 'public');
         }
 
         $user->update($dataToUpdate);
@@ -307,7 +330,6 @@ class UserController extends Controller
             'data' => $user
         ]);
     }
-
 
     // Delete user
     public function delete($id)
