@@ -3,10 +3,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\JeepController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\JeepController;
+use App\Http\Controllers\MidtransNotificationController;
 
 
 
@@ -38,9 +39,8 @@ Route::prefix('jeeps')->group(function () {
 });
 
 // BOOKING / MIDTRANS
-Route::post('/orders/checkout', [BookingController::class, 'checkout']);
-Route::post('/midtrans-notification', [BookingController::class, 'midtransNotif']);
-Route::get('/orders/{order_id}/remaining-payment', [PaymentController::class, 'getRemainingPaymentInfo']);
-Route::post('/orders/{order_id}/remaining-payment', [PaymentController::class, 'startRemainingPayment']);
+Route::apiResource('bookings', BookingController::class); // crud
+Route::post('/midtrans-notification', [MidtransNotificationController::class, 'midtransNotif']); // midtrans notification (webhook)
+Route::get('/orders/{order_id}/remaining-payment', [PaymentController::class, 'getRemainingPaymentInfo']); // remaining payment info pembayaran ke 2
+Route::post('/orders/{order_id}/remaining-payment', [PaymentController::class, 'startRemainingPayment']); // start remaining payment pembayaran ke 2
 
-Route::post('/checkout', [BookingController::class, 'checkout']);
