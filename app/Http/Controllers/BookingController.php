@@ -21,9 +21,8 @@ class BookingController extends Controller
      */
     public function index()
     {
-        $order = Booking::all();
-
-        return response()->json($order, 200);
+        $orders = Booking::with(['package:id,package_name,description,price'])->get();
+        return response()->json($orders, 200);
     }
 
     /**
@@ -44,9 +43,9 @@ class BookingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Booking $booking)
+    public function show($id)
     {
-        $data = Booking::find($booking->booking_id);
+        $data = Booking::with(['package:id,package_name,description,price'])->find($id);
 
         if(!$data){
             return response()->json([
@@ -61,39 +60,35 @@ class BookingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Booking $booking)
+    public function update(Request $request, $id)
     {
-        if (!$booking) {
+
+        $data = Booking::find($id);
+    
+        if (!$data) {
             return response()->json([
                 'message' => 'Booking not found'
             ], 404);
         }
 
-        if (now()->diffInDays($booking->tour_date, false) < 2) {
-            return response()->json([
-                'message' => 'Rescheduling can only be done a maximum of H-2 before departure'
-            ], 403);
-        }
-
         $validated = $request->validate([
-            'tour_date' => [
-                'required',
-                'date',
-                'after_or_equal:' . Carbon::now()->addDays(2)->format('Y-m-d'),
-            ],
+            'booking_status' => 'nullable|in:settlement,capture,cancel,expired',
+            'tour_date' => 'nullable|date',
             'start_time' => 'nullable|date_format:H:i',
         ]);
         
-        if ($booking->payment_status === 'paid') {
-            $booking->tour_date = $validated['tour_date'];
-            $booking->start_time = $validated['start_time'] ?? $booking->start_time;
+        if ($data->payment_status === 'paid') {
+            
+            $data->booking_status = $validated['booking_status'] ?? $data->booking_status;
+            $data->tour_date = $validated['tour_date'] ?? $data->tour_date;
+            $data->start_time = $validated['start_time'] ?? $data->start_time;
 
-            $booking->save();
+            $data->save();
     
             return response()->json([
                 'success' => true,
                 'message' => 'Booking updated successfully',
-                'data' => $booking
+                'data' => $data
             ], 200);
         } else {
             return response()->json([
@@ -105,9 +100,9 @@ class BookingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Booking $booking)
+    public function destroy($id)
     {
-        $data = Booking::find($booking->booking_id);
+        $data = Booking::find($id);
 
         if(!$data){
             return response()->json([
