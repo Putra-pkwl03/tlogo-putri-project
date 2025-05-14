@@ -50,3 +50,6 @@ Route::post('/midtrans-notification', [MidtransNotificationController::class, 'm
 Route::get('/orders/{order_id}/remaining-payment', [PaymentController::class, 'getRemainingPaymentInfo']); // remaining payment info pembayaran ke 2
 Route::post('/orders/{order_id}/remaining-payment', [PaymentController::class, 'startRemainingPayment']); // start remaining payment pembayaran ke 2
 
+Route::get('/payment/orders', [PaymentController::class, 'index']);
+Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
+
