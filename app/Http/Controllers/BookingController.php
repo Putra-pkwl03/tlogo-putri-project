@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use App\Services\BookingService;
+use Carbon\Carbon;
 
 class BookingController extends Controller
 {   
@@ -20,9 +21,8 @@ class BookingController extends Controller
      */
     public function index()
     {
-        $order = Booking::all();
-
-        return response()->json($order);
+        $orders = Booking::with(['package:id,package_name,description,price'])->get();
+        return response()->json($orders, 200);
     }
 
     /**
@@ -37,30 +37,84 @@ class BookingController extends Controller
             'snap_token' => $data['snap_token'],
             'redirect_url' => 'https://app.sandbox.midtrans.com/snap/v3/redirection/' . $data['snap_token'],
             'order' => $data['order'],
-        ]);   
+        ], 201);   
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Booking $booking)
+    public function show($id)
     {
-        //
+        $data = Booking::with(['package:id,package_name,description,price'])->find($id);
+
+        if(!$data){
+            return response()->json([
+                'message' => 'Booking not found'
+            ], 404);
+        }
+
+        return response()->json($data, 200);
+
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Booking $booking)
+    public function update(Request $request, $id)
     {
-        //
+
+        $data = Booking::find($id);
+    
+        if (!$data) {
+            return response()->json([
+                'message' => 'Booking not found'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'booking_status' => 'nullable|in:settlement,capture,cancel,expired',
+            'tour_date' => 'nullable|date',
+            'start_time' => 'nullable|date_format:H:i',
+        ]);
+        
+        if ($data->payment_status === 'paid') {
+            
+            $data->booking_status = $validated['booking_status'] ?? $data->booking_status;
+            $data->tour_date = $validated['tour_date'] ?? $data->tour_date;
+            $data->start_time = $validated['start_time'] ?? $data->start_time;
+
+            $data->save();
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Booking updated successfully',
+                'data' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Booking is not fully paid'
+            ], 403);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Booking $booking)
+    public function destroy($id)
     {
-        //
+        $data = Booking::find($id);
+
+        if(!$data){
+            return response()->json([
+                'message' => 'Booking not found'
+            ], 404);
+        }
+
+        $data->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data deleted successfully'
+        ]);
     }
 }

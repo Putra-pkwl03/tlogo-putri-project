@@ -39,8 +39,17 @@ Route::prefix('jeeps')->group(function () {
 });
 
 // BOOKING / MIDTRANS
-Route::apiResource('bookings', BookingController::class); // crud
+// Route::apiResource('bookings', BookingController::class) ->only(['index', 'store', 'show', 'update']);; // crud
+Route::get('/bookings', [BookingController::class, 'index']);
+Route::post('/bookings', [BookingController::class, 'store']);
+Route::get('/bookings/{id}', [BookingController::class, 'show']);
+Route::put('/bookings/{id}', [BookingController::class, 'update']);
+// Route::delete('/bookings/{id}', [BookingController::class, 'destroy']);
+
 Route::post('/midtrans-notification', [MidtransNotificationController::class, 'midtransNotif']); // midtrans notification (webhook)
 Route::get('/orders/{order_id}/remaining-payment', [PaymentController::class, 'getRemainingPaymentInfo']); // remaining payment info pembayaran ke 2
 Route::post('/orders/{order_id}/remaining-payment', [PaymentController::class, 'startRemainingPayment']); // start remaining payment pembayaran ke 2
+
+Route::get('/payment/orders', [PaymentController::class, 'index']);
+Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
 
