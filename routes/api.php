@@ -8,7 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransNotificationController;
-
+use App\Http\Controllers\ContentGeneratorController;
 
 
 // AUTH GROUP
@@ -53,3 +53,7 @@ Route::post('/orders/{order_id}/remaining-payment', [PaymentController::class, '
 Route::get('/payment/orders', [PaymentController::class, 'index']);
 Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
 
+// GENERATE CONTENT
+Route::prefix('content-generate')->group(function () {
+    Route::post('/generate', [ContentGeneratorController::class, 'generate']);
+});
