@@ -9,7 +9,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransNotificationController;
 use App\Http\Controllers\ContentGeneratorController;
-
+use App\Http\Controllers\TicketingController;
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -36,6 +36,14 @@ Route::prefix('jeeps')->group(function () {
     Route::get('/status/{status}', [JeepController::class, 'showByStatus']); // Berdasarkan Status
     Route::put('/update/{id}', [JeepController::class, 'update']); // Update
     Route::delete('/delete/{id}', [JeepController::class, 'delete']); // Delete
+});
+
+// TICKET CRUD GROUP
+Route::prefix('ticketings')->group(function () {
+    Route::get('/all', [TicketingController::class, 'index']); // Semua tiket
+    Route::post('/create', [TicketingController::class, 'store']); // Create
+    Route::get('/id/{id}', [TicketingController::class, 'show']); // Berdasarkan ID
+    Route::delete('/delete/{id}', [TicketingController::class, 'destroy']); // Delete
 });
 
 // BOOKING / MIDTRANS
