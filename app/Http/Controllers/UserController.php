@@ -280,7 +280,7 @@ class UserController extends Controller
 
         if ($authUser->role === 'Front Office') {
             $rules += [
-                'role' => 'nullable|in:Front Office,OWNER,DRIVER,PENGURUS',
+                'role' => 'nullable|in:Front Office,Owner,Driver,Pengurus',
                 'status' => 'nullable|string',
                 'jumlah_jeep' => 'nullable|integer|min:0',
             ];
