@@ -21,4 +21,9 @@ class Jeep extends Model
         'tahun_kendaraan',
         'status',
     ];
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticketing::class, 'jeep_id', 'jeep_id');
+    }
 }
