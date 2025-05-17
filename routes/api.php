@@ -8,8 +8,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransNotificationController;
-
-
+use App\Http\Controllers\ContentGeneratorController;
+use App\Http\Controllers\TicketingController;
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -38,9 +38,30 @@ Route::prefix('jeeps')->group(function () {
     Route::delete('/delete/{id}', [JeepController::class, 'delete']); // Delete
 });
 
+// TICKET CRUD GROUP
+Route::prefix('ticketings')->group(function () {
+    Route::get('/all', [TicketingController::class, 'index']); // Semua tiket
+    Route::post('/create', [TicketingController::class, 'store']); // Create
+    Route::get('/id/{id}', [TicketingController::class, 'show']); // Berdasarkan ID
+    Route::delete('/delete/{id}', [TicketingController::class, 'destroy']); // Delete
+});
+
 // BOOKING / MIDTRANS
-Route::apiResource('bookings', BookingController::class); // crud
+// Route::apiResource('bookings', BookingController::class) ->only(['index', 'store', 'show', 'update']);; // crud
+Route::get('/bookings', [BookingController::class, 'index']); //Zikra make data ini untuk menampilkan data pemesanan. jangan llupa migrate dulu semua seedernya
+Route::post('/bookings', [BookingController::class, 'store']);
+Route::get('/bookings/{id}', [BookingController::class, 'show']);
+Route::put('/bookings/{id}', [BookingController::class, 'update']);
+// Route::delete('/bookings/{id}', [BookingController::class, 'destroy']);
+
 Route::post('/midtrans-notification', [MidtransNotificationController::class, 'midtransNotif']); // midtrans notification (webhook)
-Route::get('/orders/{order_id}/remaining-payment', [PaymentController::class, 'getRemainingPaymentInfo']); // remaining payment info pembayaran ke 2
+Route::get('/orders/{order_id}/remaining-payment', [PaymentController::class,'getRemainingPaymentInfo']); // remaining payment info pembayaran ke 2
 Route::post('/orders/{order_id}/remaining-payment', [PaymentController::class, 'startRemainingPayment']); // start remaining payment pembayaran ke 2
 
+Route::get('/payment/orders', [PaymentController::class, 'index']);
+Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
+
+// GENERATE CONTENT
+Route::prefix('content-generate')->group(function () {
+    Route::post('/generate', [ContentGeneratorController::class, 'generate']);
+});

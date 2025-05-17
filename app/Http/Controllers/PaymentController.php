@@ -102,5 +102,28 @@ class PaymentController extends Controller
         
     }
 
+    public function index()
+    {
+        // $transactions = PaymentTransaction::get();
+        $transactions = PaymentTransaction::with('booking')
+        ->select('transaction_id', 'booking_id','order_id', 'amount', 'channel','status', 'payment_for', 'created_at',)
+        ->get();
+        return response()->json($transactions, 200);
+    }
+
+    public function show($booking_id)
+    {
+        $transaction = PaymentTransaction::where('booking_id', $booking_id)
+        ->select('transaction_id', 'booking_id','order_id', 'amount', 'channel', 'status', 'payment_for', 'created_at',)
+        ->get();
+
+
+        if ($transaction->isEmpty()) {
+            return response()->json(['message' => 'Transaction not found'], 404);
+        }
+
+        return response()->json($transaction, 200);
+    }
+
 
 }
