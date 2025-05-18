@@ -25,7 +25,8 @@ class User extends Authenticatable implements JWTSubject
         'foto_profil',
         'status',
         'tanggal_bergabung',
-        'jumlah_jeep'
+        'jumlah_jeep',
+        'konfirmasi'
     ];
 
     // Implementasi metode dari JWTSubject

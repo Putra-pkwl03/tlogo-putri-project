@@ -5,8 +5,6 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -16,20 +14,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
         User::factory()->create([
-            'name' => 'Mohammad Sobri',
+            'name' => 'Rild Void',
             'username' => 'Rild',
-            'email' => 'sobrimuhammad19@gmail.com',
+            'email' => 'rildvoid@gmail.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('@neymarjr'),
+            'password' => Hash::make('rildfnc'),
             'role' => 'Driver',
             'alamat' => 'Gamping',
             'telepon' => '0851234567',
             'foto_profil' => null,
             'tanggal_bergabung' => now()->toDateString(),
             'status' => 'Aktif',
+            'konfirmasi' => 'Bisa',
             'jumlah_jeep' => null,
             'remember_token' => Str::random(10),
             'created_at' => now(),

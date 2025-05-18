@@ -23,8 +23,9 @@ return new class extends Migration
             $table->string('telepon')->unique()->nullable();
             $table->string('foto_profil')->nullable();
             $table->date('tanggal_bergabung')->nullable();
-            $table->string('status')->nullable();
+            $table->enum('status', ['Aktif', 'Tidak Aktif'])->nullable(); // update di sini
             $table->string('jumlah_jeep')->nullable(); // untuk OWNER
+            $table->enum('konfirmasi', ['Bisa', 'Tidak Bisa'])->nullable(); // kolom baru
             $table->rememberToken();
             $table->timestamps();
         });
