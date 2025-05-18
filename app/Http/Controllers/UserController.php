@@ -115,6 +115,7 @@ class UserController extends Controller
                     'tanggal_bergabung' => $user->tanggal_bergabung,
                     'status' => $user->status,
                     'role' => $user->role,
+                    'konfirmasi' => $user->konfirmasi
                 ];
                 break;
 
@@ -183,6 +184,7 @@ class UserController extends Controller
                         'tanggal_bergabung' => $user->tanggal_bergabung,
                         'status' => $user->status,
                         'role' => $user->role,
+                        'konfirmasi' => $user->konfirmasi
                     ];
 
                 case 'Owner':
@@ -283,6 +285,7 @@ class UserController extends Controller
                 'role' => 'nullable|in:Front Office,Owner,Driver,Pengurus',
                 'status' => 'nullable|string',
                 'jumlah_jeep' => 'nullable|integer|min:0',
+                'konfirmasi' => 'nullable|in:Bisa,Tidak Bisa',
             ];
         }
 
@@ -315,6 +318,7 @@ class UserController extends Controller
                 'role',
                 'status',
                 'jumlah_jeep',
+                'konfirmasi'
             ]);
         }
 
