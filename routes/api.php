@@ -10,6 +10,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransNotificationController;
 use App\Http\Controllers\ContentGeneratorController;
 use App\Http\Controllers\TicketingController;
+use App\Http\Controllers\DriverRotationController;
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -45,6 +46,14 @@ Route::prefix('ticketings')->group(function () {
     Route::get('/id/{id}', [TicketingController::class, 'show']); // Berdasarkan ID
     Route::delete('/delete/{id}', [TicketingController::class, 'destroy']); // Delete
 });
+
+// ROLLING DRIVERS
+Route::prefix('driver-rotations')->group(function () {
+    Route::get('/', [DriverRotationController::class, 'index']); // lihat rotasi harian
+    Route::post('/generate', [DriverRotationController::class, 'generate']); // buat rotasi besok
+    Route::post('/{id}/skip', [DriverRotationController::class, 'skip']); // tandai driver skip
+});
+
 
 // BOOKING / MIDTRANS
 // Route::apiResource('bookings', BookingController::class) ->only(['index', 'store', 'show', 'update']);; // crud
