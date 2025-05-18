@@ -1,7 +1,5 @@
 <?php
 
-// app/Http/Controllers/DriverRotationController.php
-
 namespace App\Http\Controllers;
 
 use App\Models\User;
@@ -16,18 +14,21 @@ class DriverRotationController extends Controller
     {
         $besok = Carbon::tomorrow()->toDateString();
 
-        // Cek apakah sudah dibuat sebelumnya
+        // Cek apakah rotasi besok sudah dibuat
         if (DriverRotation::where('date', $besok)->exists()) {
             return response()->json(['message' => 'Rotasi untuk besok sudah dibuat.'], 400);
         }
 
-        // Ambil semua driver
-        $drivers = User::where('role', 'driver')->orderBy('last_assigned_at')->get();
+        // Ambil semua driver berdasarkan rotasi terakhir
+        $drivers = User::where('role', 'driver')
+            ->orderBy('last_assigned_at')
+            ->get();
 
         foreach ($drivers as $driver) {
             DriverRotation::create([
                 'date' => $besok,
                 'driver_id' => $driver->id,
+                'assigned' => false, // default
             ]);
         }
 
@@ -46,7 +47,7 @@ class DriverRotationController extends Controller
         return response()->json(['message' => 'Driver ditandai berhalangan.']);
     }
 
-    // Tampilkan semua rotasi untuk tanggal tertentu
+    // Tampilkan rotasi untuk tanggal tertentu (default hari ini)
     public function index(Request $request)
     {
         $tanggal = $request->date ?? Carbon::today()->toDateString();
@@ -57,5 +58,23 @@ class DriverRotationController extends Controller
             ->get();
 
         return response()->json($rotasi);
+    }
+
+    // Tandai driver sebagai ditugaskan dan update last_assigned_at
+    public function assign($rotationId)
+    {
+        $rotation = DriverRotation::with('driver')->findOrFail($rotationId);
+
+        // Update status ditugaskan
+        $rotation->update([
+            'assigned' => true,
+        ]);
+
+        // Update waktu terakhir ditugaskan di data user
+        $rotation->driver->update([
+            'last_assigned_at' => Carbon::now(),
+        ]);
+
+        return response()->json(['message' => 'Driver berhasil ditugaskan.']);
     }
 }

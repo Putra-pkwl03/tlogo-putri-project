@@ -52,6 +52,7 @@ Route::prefix('driver-rotations')->group(function () {
     Route::get('/', [DriverRotationController::class, 'index']); // lihat rotasi harian
     Route::post('/generate', [DriverRotationController::class, 'generate']); // buat rotasi besok
     Route::post('/{id}/skip', [DriverRotationController::class, 'skip']); // tandai driver skip
+    Route::post('/{id}/assign', [DriverRotationController::class, 'assign']);
 });
 
 
