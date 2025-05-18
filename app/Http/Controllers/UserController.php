@@ -8,6 +8,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -43,7 +44,9 @@ class UserController extends Controller
 
         // Upload file jika ada
         if ($request->hasFile('foto_profil')) {
-            $validated['foto_profil'] = $request->file('foto_profil')->store('profile_images', 'public');
+            $path = $request->file('foto_profil')->store('profile_images', 'public');
+            $validated['foto_profil'] = $path;
+            $validated['foto_profil_url'] = Storage::url($path); // Tambah URL ke response
         }
 
         // Hash password
@@ -51,7 +54,14 @@ class UserController extends Controller
 
         $user = User::create($validated);
 
-        return response()->json(compact('user'), 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'User berhasil didaftarkan.',
+            'data' => [
+                'user' => $user,
+                'foto_profil_url' => $user->foto_profil ? Storage::url($user->foto_profil) : null,
+            ]
+        ], 201);
     }
 
     // Get all users (Hanya bisa diakses oleh FO yang login)
