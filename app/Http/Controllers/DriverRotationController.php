@@ -13,13 +13,10 @@ class DriverRotationController extends Controller
     public function generate()
     {
         $besok = Carbon::tomorrow()->toDateString();
-
-        // Cek apakah rotasi besok sudah dibuat
         if (DriverRotation::where('date', $besok)->exists()) {
             return response()->json(['message' => 'Rotasi untuk besok sudah dibuat.'], 400);
         }
 
-        // Ambil semua driver berdasarkan rotasi terakhir
         $drivers = User::where('role', 'driver')
             ->orderBy('last_assigned_at')
             ->get();
@@ -60,21 +57,20 @@ class DriverRotationController extends Controller
         return response()->json($rotasi);
     }
 
-    // Tandai driver sebagai ditugaskan dan update last_assigned_at
     public function assign($rotationId)
-    {
-        $rotation = DriverRotation::with('driver')->findOrFail($rotationId);
+{
+    $rotation = DriverRotation::with('driver')->findOrFail($rotationId);
 
-        // Update status ditugaskan
-        $rotation->update([
-            'assigned' => true,
-        ]);
+    $rotation->update([
+        'assigned' => true,
+        'skip_reason' => null, 
+    ]);
 
-        // Update waktu terakhir ditugaskan di data user
-        $rotation->driver->update([
-            'last_assigned_at' => Carbon::now(),
-        ]);
+    $rotation->driver->update([
+        'last_assigned_at' => Carbon::now(),
+    ]);
 
-        return response()->json(['message' => 'Driver berhasil ditugaskan.']);
-    }
+    return response()->json(['message' => 'Driver berhasil ditugaskan kembali.']);
+}
+
 }
