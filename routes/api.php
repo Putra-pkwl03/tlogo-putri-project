@@ -78,4 +78,5 @@ Route::get('/packages/{id}', [PackageController::class, 'show']);
 // GENERATE CONTENT
 Route::prefix('content-generate')->group(function () {
     Route::post('/generate', [ContentGeneratorController::class, 'generate']);
+    Route::post('/optimize', [ContentGeneratorController::class, 'optimize']);
 });
