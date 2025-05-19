@@ -12,6 +12,7 @@ use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ContentGeneratorController;
 use App\Http\Controllers\TicketingController;
 use App\Http\Controllers\DriverRotationController;
+use App\Http\Controllers\VoucherController;  // <<< Tambahkan ini
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -79,3 +80,6 @@ Route::get('/packages/{id}', [PackageController::class, 'show']);
 Route::prefix('content-generate')->group(function () {
     Route::post('/generate', [ContentGeneratorController::class, 'generate']);
 });
+
+// ROUTE VOUCHERS (paling akhir atau boleh disusun sesuai preferensi)
+Route::get('/vouchers', [VoucherController::class, 'index']);
