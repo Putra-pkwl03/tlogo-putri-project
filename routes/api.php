@@ -56,4 +56,5 @@ Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
 // GENERATE CONTENT
 Route::prefix('content-generate')->group(function () {
     Route::post('/generate', [ContentGeneratorController::class, 'generate']);
+    Route::post('/optimize', [ContentGeneratorController::class, 'optimize']);
 });
