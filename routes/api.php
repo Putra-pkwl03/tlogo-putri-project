@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransNotificationController;
+use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ContentGeneratorController;
 use App\Http\Controllers\TicketingController;
 use App\Http\Controllers\DriverRotationController;
@@ -60,7 +61,7 @@ Route::prefix('driver-rotations')->group(function () {
 
 // BOOKING / MIDTRANS
 // Route::apiResource('bookings', BookingController::class) ->only(['index', 'store', 'show', 'update']);; // crud
-Route::get('/bookings', [BookingController::class, 'index']); //Zikra make data ini untuk menampilkan data pemesanan. jangan llupa migrate dulu semua seedernya
+Route::get('/bookings', [BookingController::class, 'index']); //untuk menampilkan data pemesanan. jangan llupa migrate dulu semua seedernya
 Route::post('/bookings', [BookingController::class, 'store']);
 Route::get('/bookings/{id}', [BookingController::class, 'show']);
 Route::put('/bookings/{id}', [BookingController::class, 'update']);
@@ -73,7 +74,12 @@ Route::post('/orders/{order_id}/remaining-payment', [PaymentController::class, '
 Route::get('/payment/orders', [PaymentController::class, 'index']);
 Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
 
+Route::get('/packages', [PackageController::class, 'index']);
+Route::get('/packages/{id}', [PackageController::class, 'show']);
+
 // GENERATE CONTENT
 Route::prefix('content-generate')->group(function () {
     Route::post('/generate', [ContentGeneratorController::class, 'generate']);
+    Route::post('/optimize', [ContentGeneratorController::class, 'optimize']);
+    Route::post('/storecontent', [ContentGeneratorController::class, 'store']);
 });
