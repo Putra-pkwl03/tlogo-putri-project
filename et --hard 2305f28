@@ -1,0 +1,25 @@
+[33ma75e12f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: pull origin main: Fast-forward
+[33m2305f28[m HEAD@{1}: pull origin main: Fast-forward
+[33m5da6cec[m HEAD@{2}: commit: update fungsi rolling drivers
+[33mcb0d8c4[m HEAD@{3}: commit: membuat fungsi rolling drivers dna logika algoritmanya
+[33mddf1382[m HEAD@{4}: pull origin main: Merge made by the 'ort' strategy.
+[33m81ee59d[m HEAD@{5}: commit: membuat fungsi rolling drivers
+[33me4c991a[m HEAD@{6}: pull origin main: Fast-forward
+[33m37eee6a[m HEAD@{7}: commit: memperbaiki logika ticketing add
+[33mba70587[m HEAD@{8}: pull origin main: Merge made by the 'ort' strategy.
+[33m1530253[m HEAD@{9}: commit: konfigurasi midtrans
+[33mfc2de7d[m HEAD@{10}: pull origin main: Fast-forward
+[33m535946b[m HEAD@{11}: commit: melakukan perbaikn fungsi get all user by fo
+[33mab31041[m HEAD@{12}: pull origin main: Merge made by the 'ort' strategy.
+[33m2da4196[m HEAD@{13}: commit: salah ketik
+[33m8154d63[m HEAD@{14}: commit (merge): membuat fungsi update dan meneyelesaikn fonflik
+[33m82a5498[m HEAD@{15}: commit: membuat fungsi update
+[33m0f35d21[m HEAD@{16}: pull origin main: Merge made by the 'ort' strategy.
+[33m0985e73[m HEAD@{17}: commit: Membuat perubahan kecil
+[33mb614f1d[m HEAD@{18}: commit: melakukan analisis dan penarikan dari perubhan yang di lakukan sobri
+[33m1002d40[m HEAD@{19}: pull origin main: Fast-forward
+[33mab119d3[m HEAD@{20}: commit: melakuakn perubahan table fo ke table users
+[33m7db492f[m HEAD@{21}: pull origin main: Merge made by the 'ort' strategy.
+[33m250c180[m HEAD@{22}: commit: melkaukan implementasi login fo menggunakan ath jwt berier token
+[33m1b63ab0[m HEAD@{23}: commit: melkaukan create laravel 12 dan melkaukan konfigurasi databasesnya di file .env
+[33m6e6606c[m HEAD@{24}: initial pull
