@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use OpenAI;
-use Carbon\Carbon;
 use App\Models\Articel;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ContentGeneratorController extends Controller
 {
@@ -137,6 +138,23 @@ class ContentGeneratorController extends Controller
         ]);
     }
 
+        public function read_all()
+    {
+        try {
+            $artikels = Artikel::all(); // Ambil semua artikel
+            return response()->json([
+                'success' => true,
+                'data' => $artikels
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Gagal mengambil data artikel: '.$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data artikel'
+            ], 500);
+        }
+    }
+
     public function optimize(Request $request)
     {
         $content = $request->input('content');
@@ -179,7 +197,77 @@ class ContentGeneratorController extends Controller
             'content' => trim($optimized),
             'category' => trim($category)
         ]);
+    }    
+
+    public function updateArtikel(Request $request, $id)
+    {
+        Log::info("Mulai update artikel dengan id: $id");
+
+        try {
+            $artikel = Artikel::find($id);
+            if (!$artikel) {
+                Log::warning("Artikel dengan id $id tidak ditemukan");
+                return response()->json(['error' => 'Artikel tidak ditemukan.'], 404);
+            }
+
+            Log::info("Artikel ditemukan: " . $artikel->judul);
+
+            $request->validate([
+                'judul' => 'nullable|string|max:255',
+                'pemilik' => 'nullable|string|max:100',
+                'kategori' => 'nullable|string',
+                'isi_konten' => 'nullable|string',
+                'gambar' => 'nullable|string|max:255',
+                'tanggal' => 'nullable|date',
+            ]);
+
+            Log::info("Data request valid");
+
+            $artikel->update($request->only([
+                'judul',
+                'pemilik',
+                'kategori',
+                'isi_konten',
+                'gambar',
+                'tanggal',
+            ]));
+
+            Log::info("Artikel berhasil diperbarui");
+
+            return response()->json([
+                'message' => 'Artikel berhasil diperbarui.',
+                'data' => $artikel
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error saat update artikel: " . $e->getMessage());
+            return response()->json([
+                'error' => 'Terjadi kesalahan server.',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
+
+    public function destroy($id)
+    {
+        $artikel = Artikel::find($id);
+
+        if (!$artikel) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Artikel tidak ditemukan'
+            ], 404);
+        }
+
+        $artikel->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Artikel berhasil dihapus'
+        ]);
+    }
+
+    
+
 
     public function store(Request $request)
     {

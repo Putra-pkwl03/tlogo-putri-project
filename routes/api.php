@@ -81,5 +81,8 @@ Route::get('/packages/{id}', [PackageController::class, 'show']);
 Route::prefix('content-generate')->group(function () {
     Route::post('/generate', [ContentGeneratorController::class, 'generate']);
     Route::post('/optimize', [ContentGeneratorController::class, 'optimize']);
+    Route::put('/article/{id}', [ContentGeneratorController::class, 'updateArtikel']);
+    Route::get('/draft', [ContentGeneratorController::class, 'read_all']);
+    Route::delete('/article/{id}', [ContentGeneratorController::class, 'destroy']);
     Route::post('/storecontent', [ContentGeneratorController::class, 'store']);
 });
