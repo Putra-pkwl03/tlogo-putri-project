@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use OpenAI;
+use Carbon\Carbon;
+use App\Models\Articel;
 
 class ContentGeneratorController extends Controller
 {
@@ -177,5 +179,26 @@ class ContentGeneratorController extends Controller
             'content' => trim($optimized),
             'category' => trim($category)
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'judul' => 'required|string',
+            'pemilik' => 'required|string',
+            'kategori' => 'required|string',
+            'isi_konten' => 'required|string'
+        ]);
+
+        $validated['tanggal'] = Carbon::today(); 
+        $validated['gambar'] = null;
+
+        // Simpan ke database
+        $artikel = Articel::create($validated);
+
+        return response()->json([
+            'message' => 'Artikel berhasil disimpan',
+            'data' => $artikel
+        ], 201);
     }
 }
