@@ -13,6 +13,8 @@ class Jeep extends Model
 
     protected $fillable = [
         'users_id',
+        'owner_id',         // ganti dari users_id → owner_id
+        'driver_id',        // tambahkan jika jeep punya driver
         'no_lambung',
         'plat_jeep',
         'foto_jeep',
@@ -22,8 +24,21 @@ class Jeep extends Model
         'status',
     ];
 
+    // Relasi ke Ticketing
     public function tickets()
     {
         return $this->hasMany(Ticketing::class, 'jeep_id', 'jeep_id');
+    }
+
+    // Relasi ke User dengan role Owner
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id')->where('role', 'Owner');
+    }
+
+    // Relasi ke User dengan role Driver
+    public function driver()
+    {
+        return $this->belongsTo(User::class, 'driver_id')->where('role', 'Driver');
     }
 }
