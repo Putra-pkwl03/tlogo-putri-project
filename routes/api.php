@@ -79,7 +79,11 @@ Route::get('/packages/{id}', [PackageController::class, 'show']);
 // GENERATE CONTENT
 Route::prefix('content-generate')->group(function () {
     Route::post('/generate', [ContentGeneratorController::class, 'generate']);
+
 });
 
 // ROUTE VOUCHERS (paling akhir atau boleh disusun sesuai preferensi)
 Route::get('/vouchers', [VoucherController::class, 'index']);
+    Route::post('/optimize', [ContentGeneratorController::class, 'optimize']);
+});
+
