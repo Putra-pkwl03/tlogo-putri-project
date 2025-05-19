@@ -35,7 +35,7 @@ class UserController extends Controller
         if (isset($roleFields[$role])) {
             foreach ($roleFields[$role] as $field) {
                 $rules[$field] = in_array($field, ['foto_profil'])
-                    ? 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+                    ? 'nullable|image|mimes:jpeg,png,jpg|max:3072'
                     : 'required|string';
             }
         }
@@ -288,6 +288,7 @@ class UserController extends Controller
             'alamat' => 'nullable|string',
             'telepon' => 'nullable|string|unique:users,telepon,' . $user->id,
             'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'konfirmasi' => 'nullable|in:Bisa,Tidak Bisa'
         ];
 
         if ($authUser->role === 'Front Office') {
@@ -295,7 +296,6 @@ class UserController extends Controller
                 'role' => 'nullable|in:Front Office,Owner,Driver,Pengurus',
                 'status' => 'nullable|string',
                 'jumlah_jeep' => 'nullable|integer|min:0',
-                'konfirmasi' => 'nullable|in:Bisa,Tidak Bisa',
             ];
         }
 
