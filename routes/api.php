@@ -36,6 +36,8 @@ Route::prefix('jeeps')->group(function () {
     Route::get('/all', [JeepController::class, 'index']); // Semua jeep
     Route::get('/id/{id}', [JeepController::class, 'showById']); // Berdasarkan ID
     Route::get('/status/{status}', [JeepController::class, 'showByStatus']); // Berdasarkan Status
+    Route::get('/owner/{ownerId}', [JeepController::class, 'showByOwner']);
+    Route::get('/driver/{driverId}', [JeepController::class, 'showByDriver']);
     Route::put('/update/{id}', [JeepController::class, 'update']); // Update
     Route::delete('/delete/{id}', [JeepController::class, 'delete']); // Delete
 });
@@ -82,5 +84,5 @@ Route::prefix('content-generate')->group(function () {
     Route::put('/article/{id}', [ContentGeneratorController::class, 'updateArtikel']);
     Route::get('/draft', [ContentGeneratorController::class, 'read_all']);
     Route::delete('/article/{id}', [ContentGeneratorController::class, 'destroy']);
-
+    Route::post('/storecontent', [ContentGeneratorController::class, 'store']);
 });

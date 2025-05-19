@@ -25,7 +25,7 @@ class UserController extends Controller
 
         $roleFields = [
             'Front Office' => [],
-            'Owner' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung', 'jumlah_jeep'],
+            'Owner' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung'],
             'Driver' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung'],
             'Pengurus' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung'],
         ];
@@ -51,6 +51,10 @@ class UserController extends Controller
 
         // Hash password
         $validated['password'] = Hash::make($validated['password']);
+
+        if ($role === 'Owner') {
+            $validated['jumlah_jeep'] = 0; // Set default jumlah jeep
+        }
 
         $user = User::create($validated);
 
