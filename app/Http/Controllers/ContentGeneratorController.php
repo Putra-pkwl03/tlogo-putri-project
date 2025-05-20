@@ -137,11 +137,11 @@ class ContentGeneratorController extends Controller
             'category' => trim($category)
         ]);
     }
-
+    //Baca artikel
         public function read_all()
     {
         try {
-            $artikels = Artikel::all(); // Ambil semua artikel
+            $artikels = Articel::all(); // Ambil semua artikel
             return response()->json([
                 'success' => true,
                 'data' => $artikels
@@ -199,6 +199,7 @@ class ContentGeneratorController extends Controller
         ]);
     }    
 
+    //Update artikel
     public function updateArtikel(Request $request, $id)
     {
         Log::info("Mulai update artikel dengan id: $id");
@@ -246,7 +247,7 @@ class ContentGeneratorController extends Controller
             ], 500);
         }
     }
-
+    //Hapus artikel
     public function destroy($id)
     {
         $artikel = Artikel::find($id);
