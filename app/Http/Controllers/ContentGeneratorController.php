@@ -137,7 +137,7 @@ class ContentGeneratorController extends Controller
             'category' => trim($category)
         ]);
     }
-    //Baca artikel
+    //Baca artikel apa kek
         public function read_all()
     {
         try {
