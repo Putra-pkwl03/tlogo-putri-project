@@ -205,7 +205,7 @@ class ContentGeneratorController extends Controller
         Log::info("Mulai update artikel dengan id: $id");
 
         try {
-            $artikel = Artikel::find($id);
+            $artikel = Articel::find($id);
             if (!$artikel) {
                 Log::warning("Artikel dengan id $id tidak ditemukan");
                 return response()->json(['error' => 'Artikel tidak ditemukan.'], 404);
@@ -250,7 +250,7 @@ class ContentGeneratorController extends Controller
     //Hapus artikel
     public function destroy($id)
     {
-        $artikel = Artikel::find($id);
+        $artikel = Articel::find($id);
 
         if (!$artikel) {
             return response()->json([
