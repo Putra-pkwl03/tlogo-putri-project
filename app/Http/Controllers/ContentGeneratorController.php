@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use OpenAI;
+use App\Models\Articel;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ContentGeneratorController extends Controller
 {
@@ -76,11 +79,10 @@ class ContentGeneratorController extends Controller
 
                 $html = $response->body();
 
-                // Ambil <p>, <article>, <section>, <div> yang panjang, dan heading (optional)
                 preg_match_all('/<(p|article|section|div|h[1-3])[^>]*>(.*?)<\/\1>/is', $html, $matches);
 
                 $filtered = array_filter($matches[2], function ($text) {
-                    return str_word_count(strip_tags($text)) > 30; // minimal 30 kata
+                    return str_word_count(strip_tags($text)) > 30;
                 });
 
                 $text = implode("\n\n", array_map('strip_tags', $filtered));
@@ -120,9 +122,172 @@ class ContentGeneratorController extends Controller
 
         $title = $responseTitle['choices'][0]['message']['content'];
 
+        // 5. buat kategori
+        $promptCategory = "Buatkan keyword-keyword tanpa menyebutkan kata dan judul keyword berdasarkan konten berikut:\n\n" . $optimized;
+        $responseCategory = $client->chat()->create([
+            'model' => 'gpt-3.5-turbo',
+            'messages' => [['role' => 'user', 'content' => $promptCategory]],
+        ]);
+
+        $category = $responseCategory['choices'][0]['message']['content'];
+
         return response()->json([
             'title' => trim($title),
-            'content' => trim($optimized)
+            'content' => trim($optimized),
+            'category' => trim($category)
         ]);
+    }
+    //Baca artikel apa kek
+        public function read_all()
+    {
+        try {
+            $artikels = Articel::all(); // Ambil semua artikel
+            return response()->json([
+                'success' => true,
+                'data' => $artikels
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Gagal mengambil data artikel: '.$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data artikel'
+            ], 500);
+        }
+    }
+
+    public function optimize(Request $request)
+    {
+        $content = $request->input('content');
+
+        if (!$content) {
+            return response()->json(['error' => 'Tidak ada konten yang bisa di optimize']);
+        }
+
+        //Optimasi dengan OpenAI
+        $client = OpenAI::client(env('OPENAI_API_KEY'));
+
+        $promptMain = "Bisa kah kamu optimize konten ini?. Optimize ini tidak mengurangi jumlah kata, Namun menambahkan jumlah kata lebih banyak, SANGAT BANYAK.\n\n" . $content;
+        $responseMain = $client->chat()->create([
+            'model' => 'gpt-3.5-turbo',
+            'messages' => [['role' => 'user', 'content' => $promptMain]],
+        ]);
+
+        $optimized = $responseMain['choices'][0]['message']['content'];
+
+        //Buat Judul
+        $promptTitle = "Buatkan SATU judul artikel yang menarik dalam Bahasa Indonesia berdasarkan konten berikut:\n\n" . $optimized;
+        $responseTitle = $client->chat()->create([
+            'model' => 'gpt-3.5-turbo',
+            'messages' => [['role' => 'user', 'content' => $promptTitle]],
+        ]);
+
+        $title = $responseTitle['choices'][0]['message']['content'];
+        
+        // buat kategori
+        $promptCategory = "Buatkan keyword-keyword tanpa menyebutkan kata dan judul keyword berdasarkan konten berikut:\n\n" . $optimized;
+        $responseCategory = $client->chat()->create([
+            'model' => 'gpt-3.5-turbo',
+            'messages' => [['role' => 'user', 'content' => $promptCategory]],
+        ]);
+
+        $category = $responseCategory['choices'][0]['message']['content'];
+
+        return response()->json([
+            'title' => trim($title),
+            'content' => trim($optimized),
+            'category' => trim($category)
+        ]);
+    }    
+
+    //Update artikel
+    public function updateArtikel(Request $request, $id)
+    {
+        Log::info("Mulai update artikel dengan id: $id");
+
+        try {
+            $artikel = Articel::find($id);
+            if (!$artikel) {
+                Log::warning("Artikel dengan id $id tidak ditemukan");
+                return response()->json(['error' => 'Artikel tidak ditemukan.'], 404);
+            }
+
+            Log::info("Artikel ditemukan: " . $artikel->judul);
+
+            $request->validate([
+                'judul' => 'nullable|string|max:255',
+                'pemilik' => 'nullable|string|max:100',
+                'kategori' => 'nullable|string',
+                'isi_konten' => 'nullable|string',
+                'gambar' => 'nullable|string|max:255',
+                'tanggal' => 'nullable|date',
+            ]);
+
+            Log::info("Data request valid");
+
+            $artikel->update($request->only([
+                'judul',
+                'pemilik',
+                'kategori',
+                'isi_konten',
+                'gambar',
+                'tanggal',
+            ]));
+
+            Log::info("Artikel berhasil diperbarui");
+
+            return response()->json([
+                'message' => 'Artikel berhasil diperbarui.',
+                'data' => $artikel
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error saat update artikel: " . $e->getMessage());
+            return response()->json([
+                'error' => 'Terjadi kesalahan server.',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    //Hapus artikel
+    public function destroy($id)
+    {
+        $artikel = Articel::find($id);
+
+        if (!$artikel) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Artikel tidak ditemukan'
+            ], 404);
+        }
+
+        $artikel->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Artikel berhasil dihapus'
+        ]);
+    }
+
+    
+
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'judul' => 'required|string',
+            'pemilik' => 'required|string',
+            'kategori' => 'required|string',
+            'isi_konten' => 'required|string'
+        ]);
+
+        $validated['tanggal'] = Carbon::today(); 
+        $validated['gambar'] = null;
+
+        // Simpan ke database
+        $artikel = Articel::create($validated);
+
+        return response()->json([
+            'message' => 'Artikel berhasil disimpan',
+            'data' => $artikel
+        ], 201);
     }
 }

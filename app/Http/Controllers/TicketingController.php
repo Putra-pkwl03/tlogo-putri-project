@@ -22,9 +22,9 @@ class TicketingController extends Controller
             'jeep_id' => 'required|exists:jeeps,jeep_id',
             'driver_id' => 'required|exists:users,id',
         ]);
-    
+
         $booking = Booking::findOrFail($request->booking_id);
-    
+
         // Cek apakah tiket untuk kode booking ini sudah dibuat
         $existingTicket = Ticketing::where('code_booking', $booking->order_id)->first();
         if ($existingTicket) {
@@ -33,7 +33,7 @@ class TicketingController extends Controller
                 'message' => 'Tiket untuk booking ini sudah dicetak.'
             ], 422);
         }
-    
+
         // Cek apakah jeep memang dimiliki oleh driver yang dipilih
         $jeep = Jeep::findOrFail($request->jeep_id);
         if ($jeep->users_id != $request->driver_id) {
@@ -42,7 +42,7 @@ class TicketingController extends Controller
                 'message' => 'Driver yang dipilih tidak sesuai dengan pemilik Jeep.'
             ], 422);
         }
-    
+
         // Buat tiket
         $ticket = Ticketing::create([
             'code_booking' => $booking->order_id,
@@ -53,14 +53,14 @@ class TicketingController extends Controller
             'jeep_id' => $request->jeep_id,
             'booking_id' => $booking->booking_id,
         ]);
-    
+
         return response()->json([
             'success' => true,
             'message' => 'Tiket berhasil dibuat.',
             'ticket' => $ticket->load(['driver', 'jeep', 'booking']),
         ], 201);
     }
-    
+
 
     public function show($id)
     {
@@ -71,5 +71,18 @@ class TicketingController extends Controller
         }
 
         return response()->json($ticket);
+    }
+
+    public function destroy($id)
+    {
+        $ticket = Ticketing::find($id);
+
+        if (!$ticket) {
+            return response()->json(['message' => 'Tiket tidak ditemukan'], 404);
+        }
+
+        $ticket->delete();
+
+        return response()->json(['message' => 'Tiket berhasil dihapus']);
     }
 }

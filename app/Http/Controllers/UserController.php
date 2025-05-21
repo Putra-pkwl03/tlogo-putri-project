@@ -8,6 +8,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -24,7 +25,7 @@ class UserController extends Controller
 
         $roleFields = [
             'Front Office' => [],
-            'Owner' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung', 'jumlah_jeep'],
+            'Owner' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung'],
             'Driver' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung'],
             'Pengurus' => ['alamat', 'telepon', 'foto_profil', 'status', 'tanggal_bergabung'],
         ];
@@ -34,7 +35,7 @@ class UserController extends Controller
         if (isset($roleFields[$role])) {
             foreach ($roleFields[$role] as $field) {
                 $rules[$field] = in_array($field, ['foto_profil'])
-                    ? 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+                    ? 'nullable|image|mimes:jpeg,png,jpg|max:3072'
                     : 'required|string';
             }
         }
@@ -43,15 +44,28 @@ class UserController extends Controller
 
         // Upload file jika ada
         if ($request->hasFile('foto_profil')) {
-            $validated['foto_profil'] = $request->file('foto_profil')->store('profile_images', 'public');
+            $path = $request->file('foto_profil')->store('profile_images', 'public');
+            $validated['foto_profil'] = $path;
+            $validated['foto_profil_url'] = Storage::url($path); // Tambah URL ke response
         }
 
         // Hash password
         $validated['password'] = Hash::make($validated['password']);
 
+        if ($role === 'Owner') {
+            $validated['jumlah_jeep'] = 0; // Set default jumlah jeep
+        }
+
         $user = User::create($validated);
 
-        return response()->json(compact('user'), 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'User berhasil didaftarkan.',
+            'data' => [
+                'user' => $user,
+                'foto_profil_url' => $user->foto_profil ? Storage::url($user->foto_profil) : null,
+            ]
+        ], 201);
     }
 
     // Get all users (Hanya bisa diakses oleh FO yang login)
@@ -115,6 +129,7 @@ class UserController extends Controller
                     'tanggal_bergabung' => $user->tanggal_bergabung,
                     'status' => $user->status,
                     'role' => $user->role,
+                    'konfirmasi' => $user->konfirmasi
                 ];
                 break;
 
@@ -183,6 +198,7 @@ class UserController extends Controller
                         'tanggal_bergabung' => $user->tanggal_bergabung,
                         'status' => $user->status,
                         'role' => $user->role,
+                        'konfirmasi' => $user->konfirmasi
                     ];
 
                 case 'Owner':
@@ -276,6 +292,7 @@ class UserController extends Controller
             'alamat' => 'nullable|string',
             'telepon' => 'nullable|string|unique:users,telepon,' . $user->id,
             'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'konfirmasi' => 'nullable|in:Bisa,Tidak Bisa'
         ];
 
         if ($authUser->role === 'Front Office') {
@@ -315,6 +332,7 @@ class UserController extends Controller
                 'role',
                 'status',
                 'jumlah_jeep',
+                'konfirmasi'
             ]);
         }
 

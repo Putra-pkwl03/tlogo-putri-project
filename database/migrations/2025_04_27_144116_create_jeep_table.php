@@ -6,22 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateJeepTable extends Migration
 {
-    public function up(): void
+    public function up()
     {
         Schema::create('jeeps', function (Blueprint $table) {
-            $table->id('jeep_id'); // Primary Key untuk tabel jeeps
-            $table->unsignedBigInteger('users_id'); // FK ke users
-            $table->string('no_lambung')->unique();
-            $table->string('plat_jeep')->unique();
+            $table->bigIncrements('jeep_id');
+            $table->unsignedBigInteger('users_id'); // Optional, bisa dihapus kalau tidak dipakai lagi
+            $table->unsignedBigInteger('owner_id');
+            $table->unsignedBigInteger('driver_id')->nullable();
+
+            $table->string('no_lambung');
+            $table->string('plat_jeep');
             $table->string('foto_jeep')->nullable();
             $table->string('merek');
             $table->string('tipe');
             $table->year('tahun_kendaraan');
             $table->string('status')->default('Tersedia');
+
             $table->timestamps();
 
-            // Foreign Key Constraint
-            $table->foreign('users_id')->references('id')->on('users')->onDelete('cascade');
+            // Foreign keys
+            $table->foreign('owner_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('driver_id')->references('id')->on('users')->onDelete('set null');
         });
     }
     public function down(): void

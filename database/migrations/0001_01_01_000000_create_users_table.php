@@ -19,12 +19,14 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->unique();
             $table->enum('role', ['Front Office', 'Owner', 'Driver', 'Pengurus']);
+            $table->timestamp('last_assigned_at')->nullable();
             $table->string('alamat')->nullable();
             $table->string('telepon')->unique()->nullable();
             $table->string('foto_profil')->nullable();
             $table->date('tanggal_bergabung')->nullable();
-            $table->string('status')->nullable();
+            $table->enum('status', ['Aktif', 'Tidak Aktif'])->nullable(); // update di sini
             $table->string('jumlah_jeep')->nullable(); // untuk OWNER
+            $table->enum('konfirmasi', ['Bisa', 'Tidak Bisa'])->nullable(); // kolom baru
             $table->rememberToken();
             $table->timestamps();
         });

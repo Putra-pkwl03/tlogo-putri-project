@@ -8,10 +8,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransNotificationController;
+use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ContentGeneratorController;
 use App\Http\Controllers\TicketingController;
-use App\Http\Controllers\ReportController;
-
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -36,6 +35,8 @@ Route::prefix('jeeps')->group(function () {
     Route::get('/all', [JeepController::class, 'index']); // Semua jeep
     Route::get('/id/{id}', [JeepController::class, 'showById']); // Berdasarkan ID
     Route::get('/status/{status}', [JeepController::class, 'showByStatus']); // Berdasarkan Status
+    Route::get('/owner/{ownerId}', [JeepController::class, 'showByOwner']);
+    Route::get('/driver/{driverId}', [JeepController::class, 'showByDriver']);
     Route::put('/update/{id}', [JeepController::class, 'update']); // Update
     Route::delete('/delete/{id}', [JeepController::class, 'delete']); // Delete
 });
@@ -48,9 +49,18 @@ Route::prefix('ticketings')->group(function () {
     Route::delete('/delete/{id}', [TicketingController::class, 'destroy']); // Delete
 });
 
+// ROLLING DRIVERS
+Route::prefix('driver-rotations')->group(function () {
+    Route::get('/', [DriverRotationController::class, 'index']); // lihat rotasi harian
+    Route::post('/generate', [DriverRotationController::class, 'generate']); // buat rotasi besok
+    Route::post('/{id}/skip', [DriverRotationController::class, 'skip']); // tandai driver skip
+    Route::post('/{id}/assign', [DriverRotationController::class, 'assign']);
+});
+
+
 // BOOKING / MIDTRANS
 // Route::apiResource('bookings', BookingController::class) ->only(['index', 'store', 'show', 'update']);; // crud
-Route::get('/bookings', [BookingController::class, 'index']); //Zikra make data ini untuk menampilkan data pemesanan. jangan llupa migrate dulu semua seedernya
+Route::get('/bookings', [BookingController::class, 'index']); //untuk menampilkan data pemesanan. jangan llupa migrate dulu semua seedernya
 Route::post('/bookings', [BookingController::class, 'store']);
 Route::get('/bookings/{id}', [BookingController::class, 'show']);
 Route::put('/bookings/{id}', [BookingController::class, 'update']);
@@ -63,9 +73,17 @@ Route::post('/orders/{order_id}/remaining-payment', [PaymentController::class, '
 Route::get('/payment/orders', [PaymentController::class, 'index']);
 Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
 
+Route::get('/packages', [PackageController::class, 'index']);
+Route::get('/packages/{id}', [PackageController::class, 'show']);
+
 // GENERATE CONTENT
 Route::prefix('content-generate')->group(function () {
     Route::post('/generate', [ContentGeneratorController::class, 'generate']);
+    Route::post('/optimize', [ContentGeneratorController::class, 'optimize']);
+    Route::put('/article/{id}', [ContentGeneratorController::class, 'updateArtikel']);
+    Route::get('/draft', [ContentGeneratorController::class, 'read_all']);
+    Route::delete('/article/{id}', [ContentGeneratorController::class, 'destroy']);
+    Route::post('/storecontent', [ContentGeneratorController::class, 'store']);
 });
 
 // REPORT GENERATE
