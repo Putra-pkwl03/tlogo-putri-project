@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('income_report', function (Blueprint $table) {
             $table->id('income_id');
             $table->unsignedBigInteger('booking_id');
-            // $table->unsignedBigInteger('ticketing_id');
+            $table->unsignedBigInteger('ticketing_id');
             $table->unsignedBigInteger('expenditure_id');
             $table->datetime('booking_date')->nullable();
             $table->decimal('amount', 10, 2)->nullable();
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('booking_id')->references('booking_id')->on('bookings')->onDelete('cascade');
-            // $table->foreign('ticketing_id')->references('ticketing_id')->on('ticketings')->onDelete('cascade');
+            $table->foreign('ticketing_id')->references('id')->on('ticketings')->onDelete('cascade');
             $table->foreign('expenditure_id')->references('expenditure_id')->on('expenditure_report')->onDelete('cascade');
         });
     }

@@ -10,6 +10,8 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransNotificationController;
 use App\Http\Controllers\ContentGeneratorController;
 use App\Http\Controllers\TicketingController;
+use App\Http\Controllers\ReportController;
+
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -65,3 +67,6 @@ Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
 Route::prefix('content-generate')->group(function () {
     Route::post('/generate', [ContentGeneratorController::class, 'generate']);
 });
+
+// REPORT GENERATE
+Route::get('/generate-report', [ReportController::class, 'calculatereport']);

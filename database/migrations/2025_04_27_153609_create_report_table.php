@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('report', function (Blueprint $table) {
             $table->id('report_id');
+            $table->unsignedBigInteger('income_id');
+            $table->unsignedBigInteger('expenditure_id');
             $table->datetime('report_date')->nullable();
             $table->decimal('cash', 10, 2)->nullable();
             $table->decimal('operational', 10, 2)->nullable();
@@ -23,6 +25,8 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('report_date', 'idx_report_date');
+            $table->foreign('income_id')->references('income_id')->on('income_report')->onDelete('cascade');
+            $table->foreign('expenditure_id')->references('expenditure_id')->on('expenditure_report')->onDelete('cascade');
         });
     }
 

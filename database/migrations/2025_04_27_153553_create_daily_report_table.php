@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('daily_report', function (Blueprint $table) {
+        Schema::create('daily_reports', function (Blueprint $table) {
             $table->id('id_daily_report');
             $table->unsignedBigInteger('booking_id');
             $table->unsignedBigInteger('salaries_id');
-            $table->string('action');
-            $table->integer('stomach_no')->nullable();
+            $table->string('stomach_no',100)->nullable();
             $table->string('touring_packet', 100)->nullable();
             $table->text('information');
-            $table->unsignedBigInteger('code');
+            $table->string('code',100);
             $table->decimal('marketing', 10, 2);
             $table->decimal('cash', 10, 2)->nullable();
             $table->decimal('oop', 10, 2)->nullable();
@@ -29,9 +28,6 @@ return new class extends Migration
             $table->decimal('price', 10, 2)->nullable();
             $table->decimal('driver_accept', 10, 2)->nullable();
             $table->decimal('paying_guest', 10, 2)->nullable();
-            $table->decimal('tunai', 10, 2);
-            $table->decimal('debit', 10, 2);
-            $table->decimal('trail', 10, 2);
             $table->datetime('arrival_time')->nullable();
             $table->timestamps();
 
