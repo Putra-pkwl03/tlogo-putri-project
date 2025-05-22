@@ -11,6 +11,7 @@ use App\Http\Controllers\MidtransNotificationController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ContentGeneratorController;
 use App\Http\Controllers\TicketingController;
+use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\DriverRotationController;
 
 // AUTH GROUP
@@ -49,6 +50,10 @@ Route::prefix('ticketings')->group(function () {
     Route::get('/id/{id}', [TicketingController::class, 'show']); // Berdasarkan ID
     Route::delete('/delete/{id}', [TicketingController::class, 'destroy']); // Delete
 });
+
+// PENGGAJIAN 
+Route::get('/salary/calculate/{userId}', [SalaryController::class, 'calculateSalary']);
+Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
 
 // ROLLING DRIVERS
 Route::prefix('driver-rotations')->group(function () {
