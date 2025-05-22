@@ -11,7 +11,6 @@ use App\Http\Controllers\MidtransNotificationController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ContentGeneratorController;
 use App\Http\Controllers\TicketingController;
-use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\DriverRotationController;
 
 // AUTH GROUP
@@ -91,3 +90,6 @@ Route::prefix('content-generate')->group(function () {
     Route::delete('/article/{id}', [ContentGeneratorController::class, 'destroy']);
     Route::post('/storecontent', [ContentGeneratorController::class, 'store']);
 });
+
+// REPORT GENERATE
+Route::get('/generate-report', [ReportController::class, 'calculatereport']);

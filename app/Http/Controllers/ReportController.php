@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class ReportController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        //
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function calculatereport()
+    {
+        $pengeluarangaji = DB::table('expenditure_report')
+        ->select('issue_date', 'amuont', 'action')
+        ->whereRaw("LOWER(action) NOT LIKE ?", ['%gaji driver%'])
+        ->whereRaw("LOWER(action) NOT LIKE ?", ['%gaji owner%'])
+        ->get();
+        $pengeluaranlain = DB::table('expenditure_all')
+        ->select('issue_date', 'amuont', 'action')
+        ->whereRaw("LOWER(action) NOT LIKE ?", ['%gaji driver%'])
+        ->whereRaw("LOWER(action) NOT LIKE ?", ['%gaji owner%'])
+        ->get();
+
+    }
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+}

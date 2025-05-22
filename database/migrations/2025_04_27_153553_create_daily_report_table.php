@@ -11,28 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('daily_report', function (Blueprint $table) {
+        Schema::create('daily_reports', function (Blueprint $table) {
             $table->id('id_daily_report');
-            $table->unsignedBigInteger('booking_id');
-            $table->unsignedBigInteger('salaries_id');
-            $table->string('action');
-            $table->integer('stomach_no')->nullable();
-            $table->string('touring_packet', 100)->nullable();
-            $table->text('information');
-            $table->unsignedBigInteger('code');
-            $table->decimal('marketing', 10, 2);
-            $table->decimal('cash', 10, 2)->nullable();
-            $table->decimal('oop', 10, 2)->nullable();
-            $table->decimal('pay_driver', 10, 2)->nullable();
-            $table->decimal('total_cash', 10, 2)->nullable();
-            $table->integer('amount')->nullable();
-            $table->decimal('price', 10, 2)->nullable();
-            $table->decimal('driver_accept', 10, 2)->nullable();
-            $table->decimal('paying_guest', 10, 2)->nullable();
-            $table->decimal('tunai', 10, 2);
-            $table->decimal('debit', 10, 2);
-            $table->decimal('trail', 10, 2);
-            $table->datetime('arrival_time')->nullable();
+            $table->unsignedBigInteger('booking_id')->nullable();
+            $table->unsignedBigInteger('salaries_id')->nullable();
+            $table->string('stomach_no',100);
+            $table->string('touring_packet', 100);
+            $table->text('information')->nullable();
+            $table->string('code',100)->nullable();
+            $table->decimal('marketing', 10, 2)->nullable();
+            $table->decimal('cash', 10, 2);
+            $table->decimal('oop', 10, 2);
+            $table->decimal('pay_driver', 10, 2);
+            $table->decimal('total_cash', 10, 2);
+            $table->integer('amount');
+            $table->decimal('price', 10, 2);
+            $table->decimal('driver_accept', 10, 2);
+            $table->decimal('paying_guest', 10, 2);
+            $table->datetime('arrival_time');
             $table->timestamps();
 
             $table->foreign('booking_id')->references('booking_id')->on('bookings')->onDelete('cascade');
