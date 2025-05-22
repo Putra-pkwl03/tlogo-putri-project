@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('expenditure_report', function (Blueprint $table) {
+        Schema::create('expenditure_all', function (Blueprint $table) {
             $table->id('expenditure_id');
-            $table->unsignedBigInteger('salaries_id');
+            $table->unsignedBigInteger('salaries_id')->nullable();
             $table->dateTime('issue_date');
             $table->decimal('amount', 10, 2);
             $table->text('information')->nullable();
@@ -21,7 +21,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('issue_date', 'idx_issue_date');
-            $table->foreign('salaries_id')->references('salaries_id')->on('salaries')->onDelete('cascade');
         });
     }
 
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('expenditure_report');
+        Schema::dropIfExists('expenditure_alls');
     }
 };
