@@ -147,7 +147,7 @@ class ContentGeneratorController extends Controller
                 'data' => $artikels
             ]);
         } catch (\Exception $e) {
-            \Log::error('Gagal mengambil data artikel: '.$e->getMessage());
+            Log::error('Gagal mengambil data artikel: '.$e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data artikel'
@@ -200,9 +200,9 @@ class ContentGeneratorController extends Controller
     }    
 
     //Update artikel
-    public function updateArtikel(Request $request, $id)
+    public function updateArtikel($id)
     {
-        Log::info("Mulai update artikel dengan id: $id");
+        Log::info("Mulai menerbitkan artikel dengan id: $id");
 
         try {
             $artikel = Articel::find($id);
@@ -211,60 +211,52 @@ class ContentGeneratorController extends Controller
                 return response()->json(['error' => 'Artikel tidak ditemukan.'], 404);
             }
 
-            Log::info("Artikel ditemukan: " . $artikel->judul);
+            $artikel->status = 'terbit';
+            $artikel->save();
 
-            $request->validate([
-                'judul' => 'nullable|string|max:255',
-                'pemilik' => 'nullable|string|max:100',
-                'kategori' => 'nullable|string',
-                'isi_konten' => 'nullable|string',
-                'gambar' => 'nullable|string|max:255',
-                'tanggal' => 'nullable|date',
-            ]);
-
-            Log::info("Data request valid");
-
-            $artikel->update($request->only([
-                'judul',
-                'pemilik',
-                'kategori',
-                'isi_konten',
-                'gambar',
-                'tanggal',
-            ]));
-
-            Log::info("Artikel berhasil diperbarui");
+            Log::info("Artikel berhasil diterbitkan: ID $id");
 
             return response()->json([
-                'message' => 'Artikel berhasil diperbarui.',
+                'message' => 'Status artikel berhasil diubah menjadi "terbit".',
                 'data' => $artikel
             ]);
         } catch (\Exception $e) {
-            Log::error("Error saat update artikel: " . $e->getMessage());
+            Log::error("Error saat menerbitkan artikel: " . $e->getMessage());
             return response()->json([
                 'error' => 'Terjadi kesalahan server.',
                 'message' => $e->getMessage()
             ], 500);
         }
     }
+
     //Hapus artikel
-    public function destroy($id)
+      public function destroy($id)
     {
-        $artikel = Articel::find($id);
+        Log::info("Mulai menghapus artikel dengan id: $id");
 
-        if (!$artikel) {
+        try {
+            $artikel = Articel::find($id);
+            if (!$artikel) {
+                Log::warning("Artikel dengan id $id tidak ditemukan");
+                return response()->json(['error' => 'Artikel tidak ditemukan.'], 404);
+            }
+
+            $artikel->status = 'sampah';
+            $artikel->save();
+
+            Log::info("Artikel berhasil dihapus: ID $id");
+
             return response()->json([
-                'success' => false,
-                'message' => 'Artikel tidak ditemukan'
-            ], 404);
+                'message' => 'Status artikel berhasil diubah menjadi "hapus".',
+                'data' => $artikel
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error saat menerbitkan artikel: " . $e->getMessage());
+            return response()->json([
+                'error' => 'Terjadi kesalahan server.',
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        $artikel->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Artikel berhasil dihapus'
-        ]);
     }
 
     
@@ -276,11 +268,12 @@ class ContentGeneratorController extends Controller
             'judul' => 'required|string',
             'pemilik' => 'required|string',
             'kategori' => 'required|string',
-            'isi_konten' => 'required|string'
+            'isi_konten' => 'required|string',
         ]);
 
         $validated['tanggal'] = Carbon::today(); 
         $validated['gambar'] = null;
+        $validated['status'] = 'konsep';
 
         // Simpan ke database
         $artikel = Articel::create($validated);
@@ -290,4 +283,84 @@ class ContentGeneratorController extends Controller
             'data' => $artikel
         ], 201);
     }
+
+            public function read_one($id)
+{
+    try {
+        $artikel = Articel::find($id); // Cari artikel berdasarkan ID
+
+        if (!$artikel) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Artikel tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $artikel
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Gagal mengambil data artikel: '.$e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal mengambil data artikel'
+        ], 500);
+    }
 }
+
+    public function read_all_terbit()
+    {
+        try {
+            $artikels = Articel::where('status', 'terbit')->get();
+            
+            return response()->json([
+                'success' => true,
+                'data' => $artikels
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Gagal mengambil data artikel terbit: '.$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data artikel terbit'
+            ], 500);
+        }
+    }
+    public function read_all_konsep()
+    {
+        try {
+            $artikels = Articel::where('status', 'konsep')->get();
+            
+            return response()->json([
+                'success' => true,
+                'data' => $artikels
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Gagal mengambil data artikel terbit: '.$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data artikel terbit'
+            ], 500);
+        }
+    }
+    public function read_all_sampah()
+    {
+        try {
+            $artikels = Articel::where('status', 'sampah')->get();
+            
+            return response()->json([
+                'success' => true,
+                'data' => $artikels
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Gagal mengambil data artikel terbit: '.$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data artikel terbit'
+            ], 500);
+        }
+    }
+
+}
+
+
