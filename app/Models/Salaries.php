@@ -17,10 +17,15 @@ class Salaries extends Model
         'salarie',
         'total_salary',
         'payment_date',
+        'ticketing_id',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function ticketing()
+    {
+        return $this->belongsTo(Ticketing::class, 'ticketing_id', 'id'); // Gunakan salah satu relasi saja
     }
 }

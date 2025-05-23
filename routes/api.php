@@ -12,6 +12,10 @@ use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ContentGeneratorController;
 use App\Http\Controllers\TicketingController;
 use App\Http\Controllers\DriverRotationController;
+use App\Http\Controllers\DailyReportController;
+use App\Http\Controllers\SalaryController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ExpenditureController;
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -96,4 +100,8 @@ Route::prefix('content-generate')->group(function () {
 });
 
 // REPORT GENERATE
-Route::get('/generate-report', [ReportController::class, 'calculatereport']);
+Route::prefix('dailyreports')->group(function () {
+    Route::get('/daily', [DailyReportController::class, 'index']);
+    Route::get('/daily/{id}', [DailyReportController::class, 'show']);
+    Route::get('/generate-report', [DailyReportController::class, 'calculatereport']);
+});
