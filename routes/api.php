@@ -87,9 +87,12 @@ Route::prefix('content-generate')->group(function () {
     Route::post('/optimize', [ContentGeneratorController::class, 'optimize']);
     Route::post('/articleupdate/{id}', [ContentGeneratorController::class, 'updateArtikel']);
     Route::get('/draft', [ContentGeneratorController::class, 'read_all']);
-    Route::delete('/articledelete/{id}', [ContentGeneratorController::class, 'destroy']);
+    Route::post('/articledelete/{id}', [ContentGeneratorController::class, 'destroy']);
     Route::post('/storecontent', [ContentGeneratorController::class, 'store']);
     Route::get('/article/{id}', [ContentGeneratorController::class, 'read_one']);
+    Route::get('/articleterbit', [ContentGeneratorController::class, 'read_all_terbit']);
+    Route::get('/articlekonsep', [ContentGeneratorController::class, 'read_all_konsep']);
+    Route::get('/articlesampah', [ContentGeneratorController::class, 'read_all_sampah']);
 });
 
 // REPORT GENERATE
