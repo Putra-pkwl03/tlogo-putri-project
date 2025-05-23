@@ -17,6 +17,7 @@ class CreateArtikelTable extends Migration
             $table->text('isi_konten')->nullable(); // TEXT bisa NULL
             $table->string('gambar', 255)->nullable(); // VARCHAR(255) bisa NULL
             $table->timestamps(); // created_at dan updated_at
+            $table->string('status', 255)->nullable(); // VARCHAR(255) bisa NULL
         });
     }
 

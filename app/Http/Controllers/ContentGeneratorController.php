@@ -200,9 +200,9 @@ class ContentGeneratorController extends Controller
     }    
 
     //Update artikel
-    public function updateArtikel(Request $request, $id)
+    public function updateArtikel($id)
     {
-        Log::info("Mulai update artikel dengan id: $id");
+        Log::info("Mulai menerbitkan artikel dengan id: $id");
 
         try {
             $artikel = Articel::find($id);
@@ -211,42 +211,24 @@ class ContentGeneratorController extends Controller
                 return response()->json(['error' => 'Artikel tidak ditemukan.'], 404);
             }
 
-            Log::info("Artikel ditemukan: " . $artikel->judul);
+            $artikel->status = 'terbit';
+            $artikel->save();
 
-            $request->validate([
-                'judul' => 'nullable|string|max:255',
-                'pemilik' => 'nullable|string|max:100',
-                'kategori' => 'nullable|string',
-                'isi_konten' => 'nullable|string',
-                'gambar' => 'nullable|string|max:255',
-                'tanggal' => 'nullable|date',
-            ]);
-
-            Log::info("Data request valid");
-
-            $artikel->update($request->only([
-                'judul',
-                'pemilik',
-                'kategori',
-                'isi_konten',
-                'gambar',
-                'tanggal',
-            ]));
-
-            Log::info("Artikel berhasil diperbarui");
+            Log::info("Artikel berhasil diterbitkan: ID $id");
 
             return response()->json([
-                'message' => 'Artikel berhasil diperbarui.',
+                'message' => 'Status artikel berhasil diubah menjadi "terbit".',
                 'data' => $artikel
             ]);
         } catch (\Exception $e) {
-            Log::error("Error saat update artikel: " . $e->getMessage());
+            Log::error("Error saat menerbitkan artikel: " . $e->getMessage());
             return response()->json([
                 'error' => 'Terjadi kesalahan server.',
                 'message' => $e->getMessage()
             ], 500);
         }
     }
+
     //Hapus artikel
     public function destroy($id)
     {
@@ -276,11 +258,12 @@ class ContentGeneratorController extends Controller
             'judul' => 'required|string',
             'pemilik' => 'required|string',
             'kategori' => 'required|string',
-            'isi_konten' => 'required|string'
+            'isi_konten' => 'required|string',
         ]);
 
         $validated['tanggal'] = Carbon::today(); 
         $validated['gambar'] = null;
+        $validated['status'] = 'konsep';
 
         // Simpan ke database
         $artikel = Articel::create($validated);
