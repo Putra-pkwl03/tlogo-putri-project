@@ -71,32 +71,32 @@ class SalaryController extends Controller
 
             $totalDriverSalary += $driverShare;
             $totalOwnerSalary += $ownerShare;
-        }
-
-        // Simpan gaji driver
-        Salaries::create([
-            'user_id' => $user->id,
-            'nama' => $user->name,
-            'role' => $user->role,
-            'no_lambung' => $user->plat_jeep ?? '-',
-            'salarie' => $totalDriverSalary,
-            'total_salary' => $totalDriverSalary,
-            'payment_date' => Carbon::now()->toDateString(),
-        ]);
-
-        // Simpan gaji owner jika user ini adalah owner
-        if ($user->role === 'owner') {
+            // Simpan gaji driver
             Salaries::create([
                 'user_id' => $user->id,
+                'ticketing_id' => $ticket->id,
                 'nama' => $user->name,
                 'role' => $user->role,
                 'no_lambung' => $user->plat_jeep ?? '-',
-                'salarie' => $totalOwnerSalary,
-                'total_salary' => $totalOwnerSalary,
+                'salarie' => $totalDriverSalary,
+                'total_salary' => $totalDriverSalary,
                 'payment_date' => Carbon::now()->toDateString(),
             ]);
+    
+            // Simpan gaji owner jika user ini adalah owner
+            if ($user->role === 'owner') {
+                Salaries::create([
+                    'user_id' => $user->id,
+                    'ticketing_id' => $ticket->id,
+                    'nama' => $user->name,
+                    'role' => $user->role,
+                    'no_lambung' => $user->plat_jeep ?? '-',
+                    'salarie' => $totalOwnerSalary,
+                    'total_salary' => $totalOwnerSalary,
+                    'payment_date' => Carbon::now()->toDateString(),
+                ]);
+            }
         }
-
         return response()->json([
             'message' => 'Salary calculated successfully',
             'driver_salary' => $totalDriverSalary,

@@ -33,4 +33,9 @@ class Ticketing extends Model
     {
         return $this->belongsTo(Booking::class, 'booking_id', 'booking_id');
     }
+    public function salary()
+    {
+        return $this->hasOne(Salaries::class, 'ticketing_id', 'id');
+    }
+
 }

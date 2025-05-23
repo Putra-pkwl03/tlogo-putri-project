@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('expenditure_report', function (Blueprint $table) {
             $table->id('expenditure_id');
-            $table->unsignedBigInteger('salaries_id');
+            $table->unsignedBigInteger('salaries_id')->nullable();
             $table->dateTime('issue_date');
             $table->decimal('amount', 10, 2);
             $table->text('information')->nullable();

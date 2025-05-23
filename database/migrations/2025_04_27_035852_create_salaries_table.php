@@ -16,6 +16,7 @@ class CreateSalariesTable extends Migration
         Schema::create('salaries', function (Blueprint $table) {
             $table->id('salaries_id');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->unsignedBigInteger('ticketing_id');
             $table->string('nama');
             $table->string('role');
             $table->string('no_lambung');
@@ -23,6 +24,8 @@ class CreateSalariesTable extends Migration
             $table->float('total_salary');
             $table->date('payment_date');
             $table->timestamps();
+
+            $table->foreign('ticketing_id')->references('id')->on('ticketings')->onDelete('cascade');
         });
     }
 

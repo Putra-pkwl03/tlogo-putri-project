@@ -10,11 +10,11 @@ use App\Models\Jeep;
 use App\Models\DailyReport;
 use App\Models\Salaries;
 
-class ReportController extends Controller
+class DailyReportController extends Controller
 {
     public function index()
     {
-        $dailyreport = DailyReport::with(['booking.package', 'jeep', 'salaries'])->get();
+        $dailyreport = DailyReport::all();
         return response()->json($dailyreport);
     }
 
@@ -27,7 +27,6 @@ class ReportController extends Controller
             'tour package 3' => 35000,
             'tour package 4' => 35000,
             'tour package 5' => 40000,
-
         ];
 
         $oopValues = [
@@ -38,25 +37,29 @@ class ReportController extends Controller
             'tour package 5' => 45000,
         ];
 
-        // Ambil semua ticketing beserta relasi terkait agar lebih efisien
-        $ticketings = Ticketing::with(['booking', 'booking.package', 'jeep', 'salaries'])->get();
+        $marketingValues = [
+            'rn' => 50000,
+            'op' => 20000,
+        ];
 
-        foreach ($ticketings as $ticketing) {
-            $booking = $ticketing->booking;
+        // Ambil semua salaries beserta relasi terkait agar lebih efisien
+        $salaries = Salaries::with([
+            'ticketing.booking.package',
+            'ticketing.jeep'
+        ])->get();
+
+        foreach ($salaries as $salary) {
+            $ticketing = $salary->ticketing;
+            $booking = $ticketing?->booking;
             $tour_package = $booking?->package;
-            $jeep = $ticketing->jeep;
-            $salaries = $ticketing->salaries;
+            $jeep = $ticketing?->jeep;
 
-            if (!$booking || !$tour_package || !$jeep || !$salaries) {
-                continue;
-            }
-
-            if (!$booking || !$tour_package || !$jeep || !$salaries) {
+            if (!$booking || !$tour_package || !$jeep) {
                 \Log::info('Data tidak lengkap', [
                     'booking' => $booking?->booking_id,
                     'tour_package' => $tour_package?->package_id ?? null,
                     'jeep' => $jeep?->id ?? null,
-                    'salaries' => $salaries?->salarie_id ?? null
+                    'salaries' => $salary->salaries_id ?? null
                 ]);
                 continue;
             }
@@ -69,19 +72,32 @@ class ReportController extends Controller
             $package = strtolower(trim($tour_package->package_name));
 
             // Hitung pembagian
-            $marketing = !empty($booking->referral_code) ? 50000 : 0;
+            $referral = trim(strtolower($booking->referral_code ?? ''));
+            $marketing = 0;
+            foreach ($marketingValues as $key => $value) {
+                if (stripos($referral, $key) !== false) {
+                    $marketing = $value;
+                    break; // Ambil nilai pertama yang cocok
+                }
+            }
+
             $cash = $cashValues[$package] ?? 0;
             $oop = $oopValues[$package] ?? 0;
+
+            if ($cash === 0 || $oop === 0) {
+                \Log::warning('Paket tidak ditemukan dalam mapping', ['package' => $package]);
+                continue;
+            }
+
             $pay_driver = $marketing + $cash + $oop;
             $driver_accept = $booking->gross_amount - $pay_driver;
 
-            // Simpan ke tabel DailyReport
             \Log::info('Menyimpan DailyReport untuk booking_id: ' . $booking->booking_id);
             DailyReport::create([
                 'booking_id'     => $booking->booking_id,
                 'stomach_no'     => $jeep->no_lambung,
                 'touring_packet' => $tour_package->package_name,
-                'code'           => '', // kosong dari tamplatenya
+                'code'           => '', // kosong dari template
                 'marketing'      => $marketing,
                 'cash'           => $cash,
                 'oop'            => $oop,
@@ -89,11 +105,11 @@ class ReportController extends Controller
                 'driver_accept'  => $driver_accept,
                 'paying_guest'   => $booking->gross_amount,
                 'total_cash'     => $cash + $oop,
-                'price'          => 0, // kosong dari tamplatenya
-                'amount'         => 0, // Sama seperti di atas
+                'price'          => 0, // kosong dari template
+                'amount'         => 0, // kosong dari template
                 'information'    => 'INDUK',
-                'arrival_time'   => $booking->tour_date,
-                'salaries_id'    => $salaries->salaries_id,
+                'salaries_id'    => $salary->salaries_id,
+                "arrival_time"   =>  $booking->tour_date
             ]);
         }
 
