@@ -147,7 +147,7 @@ class ContentGeneratorController extends Controller
                 'data' => $artikels
             ]);
         } catch (\Exception $e) {
-            \Log::error('Gagal mengambil data artikel: '.$e->getMessage());
+            Log::error('Gagal mengambil data artikel: '.$e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data artikel'
@@ -290,4 +290,31 @@ class ContentGeneratorController extends Controller
             'data' => $artikel
         ], 201);
     }
+
+            public function read_one($id)
+{
+    try {
+        $artikel = Articel::find($id); // Cari artikel berdasarkan ID
+
+        if (!$artikel) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Artikel tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $artikel
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Gagal mengambil data artikel: '.$e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal mengambil data artikel'
+        ], 500);
+    }
 }
+}
+
+
