@@ -13,6 +13,8 @@ class TourPackageSeeder extends Seeder
      */
     public function run(): void
     {
+        DB::table('tour_packages')->truncate();
+        
         DB::table('tour_packages')->insert([
             [
                 'package_name' => 'Paket 1',
