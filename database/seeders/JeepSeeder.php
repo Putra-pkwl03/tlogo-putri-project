@@ -11,9 +11,9 @@ class JeepSeeder extends Seeder
     {
         DB::table('jeeps')->insert([
             [
-                'users_id' => 2, // User pemilik jeep (Sky)
-                'owner_id' => 2,
-                'driver_id' => 1, // Rild
+                'users_id' => 3, // User pemilik jeep (Sky)
+                'owner_id' => 3,
+                'driver_id' => 2, // Rild
                 'no_lambung' => 'JEP-001',
                 'plat_jeep' => 'AB 3507 JF',
                 'foto_jeep' => null,
@@ -25,9 +25,9 @@ class JeepSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'users_id' => 2, // Masih milik Sky
-                'owner_id' => 2,
-                'driver_id' => 3, // Dava
+                'users_id' => 3, // Masih milik Sky
+                'owner_id' => 3,
+                'driver_id' => 4, // Dava
                 'no_lambung' => 'JEP-002',
                 'plat_jeep' => 'AB 3508 JF',
                 'foto_jeep' => null,
