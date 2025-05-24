@@ -54,6 +54,14 @@ class TourPackageSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'package_name' => 'Paket Sunrice',
+                'description' => 'Description for tour package 5',
+                'price' => 550000,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
     }
 }
