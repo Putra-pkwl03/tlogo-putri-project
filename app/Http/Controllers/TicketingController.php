@@ -36,10 +36,10 @@ class TicketingController extends Controller
 
         // Cek apakah jeep memang dimiliki oleh driver yang dipilih
         $jeep = Jeep::findOrFail($request->jeep_id);
-        if ($jeep->users_id != $request->driver_id) {
+        if ($jeep->driver_id != $request->driver_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Driver yang dipilih tidak sesuai dengan pemilik Jeep.'
+                'message' => 'Driver yang dipilih tidak sesuai dengan yang terdaftar di Jeep.'
             ], 422);
         }
 
@@ -60,7 +60,6 @@ class TicketingController extends Controller
             'ticket' => $ticket->load(['driver', 'jeep', 'booking']),
         ], 201);
     }
-
 
     public function show($id)
     {
