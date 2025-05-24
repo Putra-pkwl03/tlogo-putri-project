@@ -17,6 +17,7 @@ use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ExpeditureController;
 use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\RekapPresensiController;
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -131,3 +132,11 @@ Route::prefix('reports')->group(function () {
     Route::get('/triwulan', [ReportController::class, 'rekapMingguan']);
     Route::get('/tahun', [ReportController::class, 'rekapPerBulan']);
 });
+
+// REKAP PRESENSI
+Route::prefix('rekap-presensi')->group(function () {
+    Route::get('/rekap', [App\Http\Controllers\RekapPresensiController::class, 'rekapPresensi']);
+    Route::get('/all', [App\Http\Controllers\RekapPresensiController::class, 'index']);
+    Route::get('/user/{userId}', [App\Http\Controllers\RekapPresensiController::class, 'showByUser']);
+});
+// Route::get('/rekap-presensi', [App\Http\Controllers\RekapPresensiController::class, 'rekapPresensi']);

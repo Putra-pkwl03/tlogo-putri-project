@@ -15,7 +15,7 @@ class ExpeditureController extends Controller
     {
         $expenditureReport = ExpenditureReport::all();
         return response()->json([
-            'salaries' => $expenditureReport,
+            'expenditure' => $expenditureReport,
         ]);
     }
 
