@@ -9,6 +9,8 @@ class Salaries extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'salaries_id';
+
     protected $fillable = [
         'user_id',
         'nama',
@@ -18,6 +20,7 @@ class Salaries extends Model
         'total_salary',
         'payment_date',
         'ticketing_id',
+        'status',
     ];
 
     public function user()

@@ -23,6 +23,7 @@ class CreateSalariesTable extends Migration
             $table->float('salarie');
             $table->float('total_salary');
             $table->date('payment_date');
+            $table->enum('status', ['belum', 'diterima'])->default('belum');
             $table->timestamps();
 
             $table->foreign('ticketing_id')->references('id')->on('ticketings')->onDelete('cascade');

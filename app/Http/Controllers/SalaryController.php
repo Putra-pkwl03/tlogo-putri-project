@@ -95,6 +95,7 @@ class SalaryController extends Controller
                     'salarie' => $driverShare,
                     'total_salary' => $driverShare,
                     'payment_date' => Carbon::now()->toDateString(),
+                    'status' => 'belum',
                 ]);
 
                 Log::info('Driver salary saved', ['id' => $salariDriver->id]);
@@ -138,6 +139,7 @@ class SalaryController extends Controller
                         'salarie' => $ownerShare,
                         'total_salary' => $ownerShare,
                         'payment_date' => Carbon::now()->toDateString(),
+                        'status' => 'belum',
                     ]);
 
                     Log::info('Owner salary saved', ['id' => $salariOwner->id]);
@@ -172,4 +174,18 @@ class SalaryController extends Controller
             'salary_history' => $history
         ]);
     }
+
+    public function updateSalaryStatus($id)
+    {
+        $salary = Salaries::findOrFail($id);
+        $salary->status = 'diterima';
+        $salary->payment_date = now();
+        $salary->save();
+
+        return response()->json([
+            'message' => 'Status gaji berhasil diubah menjadi diterima.',
+            'data' => $salary
+        ]);
+    }
+
 }

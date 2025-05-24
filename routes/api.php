@@ -58,6 +58,8 @@ Route::prefix('ticketings')->group(function () {
 // PENGGAJIAN 
 Route::get('/salary/calculate', [SalaryController::class, 'calculateSalary']);
 Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
+Route::put('/salary/status/{id}', [SalaryController::class, 'updateSalaryStatus']);
+
 
 // ROLLING DRIVERS
 Route::prefix('driver-rotations')->group(function () {
