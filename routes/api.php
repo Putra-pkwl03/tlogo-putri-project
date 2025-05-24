@@ -98,6 +98,7 @@ Route::prefix('content-generate')->group(function () {
     Route::get('/articleterbit', [ContentGeneratorController::class, 'read_all_terbit']);
     Route::get('/articlekonsep', [ContentGeneratorController::class, 'read_all_konsep']);
     Route::get('/articlesampah', [ContentGeneratorController::class, 'read_all_sampah']);
+    Route::post('/article/{id}/gambar', [ContentGeneratorController::class, 'updateGambar']);
 });
 
 // Daily REPORT GENERATE
