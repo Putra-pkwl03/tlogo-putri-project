@@ -3,41 +3,45 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ticketing;
-use App\Models\User;
 use App\Models\Salaries;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class SalaryController extends Controller
 {
-    public function calculateSalary(Request $request, $userId)
+    public function calculateSalary()
     {
-        $user = User::findOrFail($userId);
-
-        $tickets = Ticketing::with(['booking.package'])
-            ->where('driver_id', $userId)
-            ->get();
-
-        $totalDriverSalary = 0;
-        $totalOwnerSalary = 0;
+        $tickets = Ticketing::with([
+            'booking.package',
+            'jeep.driver',
+            'jeep.owner',
+        ])->get();
 
         foreach ($tickets as $ticket) {
             $booking = $ticket->booking;
+            $package = $booking?->package;
+            $jeep = $ticket->jeep;
+            $driver = $jeep?->driver;
+            $owner = $jeep?->owner;
 
-            if (!$booking || !$booking->package) {
+            if (!$booking || !$package || !$driver) {
+                Log::warning('Skipping ticket due to missing relation', [
+                    'ticket_id' => $ticket->id,
+                    'booking_exists' => (bool) $booking,
+                    'package_exists' => (bool) $package,
+                    'driver_exists' => (bool) $driver,
+                ]);
                 continue;
             }
 
-            $package = $booking->package;
-            $referralType = $booking->referral_code; // langsung dari kolom
-
+            $referralType = $booking->referral_code;
             $price = $package->price;
             $kas = 0;
             $operasional = 0;
             $bonusDriver = 0;
             $referralCut = 0;
 
-            // Tentukan kas dan operasional berdasarkan harga paket
             switch ($price) {
                 case 400000:
                     $kas = 30000;
@@ -52,10 +56,10 @@ class SalaryController extends Controller
                     $operasional = 45000;
                     break;
                 default:
+                    Log::warning('Unknown package price', ['price' => $price]);
                     continue 2;
             }
 
-            // Referral logic tanpa model
             if ($referralType === 'rn') {
                 $referralCut = 50000;
             } elseif ($referralType === 'op') {
@@ -64,43 +68,99 @@ class SalaryController extends Controller
                 $bonusDriver = 30000;
             }
 
-            // Perhitungan gaji bersih
             $net = $price - ($kas + $operasional + $referralCut);
             $driverShare = ($net * 0.7) + $bonusDriver;
             $ownerShare = $net * 0.3;
 
-            $totalDriverSalary += $driverShare;
-            $totalOwnerSalary += $ownerShare;
-            // Simpan gaji driver
-            Salaries::create([
-                'user_id' => $user->id,
-                'ticketing_id' => $ticket->id,
-                'nama' => $user->name,
-                'role' => $user->role,
-                'no_lambung' => $user->plat_jeep ?? '-',
-                'salarie' => $totalDriverSalary,
-                'total_salary' => $totalDriverSalary,
-                'payment_date' => Carbon::now()->toDateString(),
-            ]);
-    
-            // Simpan gaji owner jika user ini adalah owner
-            if ($user->role === 'owner') {
-                Salaries::create([
-                    'user_id' => $user->id,
+            // Cek duplikat salary
+            $existingDriverSalary = Salaries::where('user_id', $driver->id)
+                ->where('ticketing_id', $ticket->id)
+                ->first();
+
+            if ($existingDriverSalary) {
+                Log::info('Driver salary already exists, skipping', [
+                    'user_id' => $driver->id,
                     'ticketing_id' => $ticket->id,
-                    'nama' => $user->name,
-                    'role' => $user->role,
-                    'no_lambung' => $user->plat_jeep ?? '-',
-                    'salarie' => $totalOwnerSalary,
-                    'total_salary' => $totalOwnerSalary,
+                ]);
+                continue;
+            }
+
+            try {
+                $salariDriver = Salaries::create([
+                    'user_id' => $driver->id,
+                    'ticketing_id' => $ticket->id,
+                    'nama' => $driver->name,
+                    'role' => $driver->role,
+                    'no_lambung' => $driver->plat_jeep ?? '-',
+                    'salarie' => $driverShare,
+                    'total_salary' => $driverShare,
                     'payment_date' => Carbon::now()->toDateString(),
                 ]);
+
+                Log::info('Driver salary saved', ['id' => $salariDriver->id]);
+            } catch (\Exception $e) {
+                Log::error('Failed to save driver salary', [
+                    'error' => $e->getMessage(),
+                    'data' => [
+                        'user_id' => $driver->id,
+                        'ticketing_id' => $ticket->id,
+                        'nama' => $driver->name,
+                        'role' => $driver->role,
+                        'no_lambung' => $driver->plat_jeep ?? '-',
+                        'salarie' => $driverShare,
+                        'total_salary' => $driverShare,
+                    ],
+                ]);
+                continue;
+            }
+
+            // Cek dan simpan gaji owner
+            if ($owner) {
+                $existingOwnerSalary = Salaries::where('user_id', $owner->id)
+                    ->where('ticketing_id', $ticket->id)
+                    ->first();
+
+                if ($existingOwnerSalary) {
+                    Log::info('Owner salary already exists, skipping', [
+                        'user_id' => $owner->id,
+                        'ticketing_id' => $ticket->id,
+                    ]);
+                    continue;
+                }
+
+                try {
+                    $salariOwner = Salaries::create([
+                        'user_id' => $owner->id,
+                        'ticketing_id' => $ticket->id,
+                        'nama' => $owner->name,
+                        'role' => $owner->role,
+                        'no_lambung' => $driver->plat_jeep ?? '-',
+                        'salarie' => $ownerShare,
+                        'total_salary' => $ownerShare,
+                        'payment_date' => Carbon::now()->toDateString(),
+                    ]);
+
+                    Log::info('Owner salary saved', ['id' => $salariOwner->id]);
+                } catch (\Exception $e) {
+                    Log::error('Failed to save owner salary', [
+                        'error' => $e->getMessage(),
+                        'data' => [
+                            'user_id' => $owner->id,
+                            'ticketing_id' => $ticket->id,
+                            'nama' => $owner->name,
+                            'role' => $owner->role,
+                            'no_lambung' => $driver->plat_jeep ?? '-',
+                            'salarie' => $ownerShare,
+                            'total_salary' => $ownerShare,
+                        ],
+                    ]);
+                    continue;
+                }
             }
         }
+
         return response()->json([
-            'message' => 'Salary calculated successfully',
-            'driver_salary' => $totalDriverSalary,
-            'owner_salary' => $totalOwnerSalary
+            'message' => 'Salary calculation completed. Check logs for errors or skipped records.',
         ]);
     }
 

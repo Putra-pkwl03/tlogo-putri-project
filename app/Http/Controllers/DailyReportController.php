@@ -93,7 +93,7 @@ class DailyReportController extends Controller
             $driver_accept = $booking->gross_amount - $pay_driver;
 
             \Log::info('Menyimpan DailyReport untuk booking_id: ' . $booking->booking_id);
-            DailyReport::create([
+            $reportdaily = DailyReport::create([
                 'booking_id'     => $booking->booking_id,
                 'stomach_no'     => $jeep->no_lambung,
                 'touring_packet' => $tour_package->package_name,
@@ -113,7 +113,9 @@ class DailyReportController extends Controller
             ]);
         }
 
-        return response()->json(['message' => 'Laporan berhasil dibuat.']);
+        return response()->json([
+            'message' => 'Laporan berhasil dibuat.',
+            'data'    => $reportdaily]);
     }
 
     public function show($id)
