@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('report', function (Blueprint $table) {
             $table->id('report_id');
-            $table->datetime('report_date');
+            $table->datetime('report_date')->unique();  // <-- unique di sini
             $table->decimal('cash', 10, 2);
             $table->decimal('operational', 10, 2);
             $table->decimal('expenditure', 10, 2);
@@ -21,10 +21,11 @@ return new class extends Migration
             $table->decimal('clean_operations', 10, 2);
             $table->integer('jeep_amount');
             $table->timestamps();
-
-            $table->index('report_date', 'idx_report_date');
+        
+            $table->index('report_date', 'idx_report_date'); // Ini sebenarnya bisa dihapus karena sudah unique
         });
     }
+
 
     /**
      * Reverse the migrations.

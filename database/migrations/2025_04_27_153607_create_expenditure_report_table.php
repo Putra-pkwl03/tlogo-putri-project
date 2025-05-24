@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('expenditure_report', function (Blueprint $table) {
             $table->id('expenditure_id');
-            $table->unsignedBigInteger('salaries_id')->nullable();
+            $table->unsignedBigInteger('salaries_id')->nullable()->unique(); // UNIK di sini
             $table->dateTime('issue_date');
             $table->decimal('amount', 10, 2);
             $table->text('information')->nullable();
             $table->string('action', 255)->nullable();
             $table->timestamps();
-
+        
             $table->index('issue_date', 'idx_issue_date');
             $table->foreign('salaries_id')->references('salaries_id')->on('salaries')->onDelete('cascade');
         });
+        
     }
 
     /**
