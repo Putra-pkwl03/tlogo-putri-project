@@ -9,6 +9,7 @@ class ExpenditureReport extends Model
 {
     /** @use HasFactory<\Database\Factories\ExpenditureReportFactory> */
     use HasFactory;
+    protected $table = 'expenditure_report';
     protected $primaryKey = 'expenditure_id';
 
     protected $fillable = [

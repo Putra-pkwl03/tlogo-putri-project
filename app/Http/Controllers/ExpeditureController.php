@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ExpenditureReport;
 use App\Models\Salaries;
-use App\Models\ExpenditureAll;
 
 class ExpeditureController extends Controller
 {
@@ -14,11 +13,9 @@ class ExpeditureController extends Controller
      */
     public function index()
     {
-        $expendituresalaries = ExpenditureReport::with(['salaries'])->get();
-        $expenditureall = ExpenditureAll::all(); // Fetch all records without relationships
+        $expenditureReport = ExpenditureReport::all();
         return response()->json([
-            'salaries' => $expendituresalaries,
-            'all' => $expenditureall,
+            'salaries' => $expenditureReport,
         ]);
     }
 
@@ -34,7 +31,7 @@ class ExpeditureController extends Controller
         ]);
 
         // Simpan data ke dalam tabel ExpenditureReport
-        $expenditureAll = ExpenditureAll::create([
+        $expenditureReport = ExpenditureReport::create([
             'salaries_id' => $validatedData['salaries_id'] ?? null, // Set null jika tidak ada salaries_id
             'issue_date' => $validatedData['issue_date'],
             'amount' => $validatedData['amount'],
@@ -45,57 +42,78 @@ class ExpeditureController extends Controller
         // Kembalikan respon JSON
         return response()->json([
             'message' => 'Data berhasil disimpan.',
-            'data' => $expenditureAll,
+            'data' => $expenditureReport,
         ]);
     }
     /**
      * Store a newly created resource in storage.
      */    
 
-    public function storeformsalarie($salaries_id)
+     public function storeformsalarie()
+     {
+         $salaries = Salaries::all();
+         $expenditureReports = [];
+     
+         foreach ($salaries as $salary) {
+             $expenditureReports[] = ExpenditureReport::create([
+                 'salaries_id'  => $salary->salaries_id,
+                 'issue_date'   => $salary->payment_date,
+                 'amount'       => $salary->total_salary,
+                 'information'  => 'gaji ' . $salary->role . ' ' . $salary->nama,
+                 'action'       => 'menambah gaji ' . $salary->role,
+             ]);
+         }
+     
+         return response()->json([
+             'message' => 'Laporan berhasil dibuat.',
+             'data'    => $expenditureReports
+         ]);
+     }
+     
+    public function update(Request $request, string $expenditure_id)
     {
-        $salaries = Salaries::findOrFail($salaries_id);
-
-        $expenditureReport=ExpenditureReport::create([
-            'salaries_id'=> $salaries->id,
-            'issue_date'=> $salaries->payment_date,
-            'amount' => $salaries->total_salary,
-            'information'=> 'gaji' . $salaries->role . ' ' . $salaries->nama,
-            'action' =>'menambah gaji' . $salaries->role,
+        // Validasi data yang dikirim dari frontend
+        $validatedData = $request->validate([
+            'salaries_id' => 'nullable|exists:salaries,id', // salaries_id tidak wajib
+            'issue_date' => 'required|date',
+            'amount' => 'required|numeric',
+            'information' => 'required|string',
+            'action' => 'required|string',
         ]);
 
-        return response()->json(['message' => 'Laporan berhasil dibuat.', data => $expenditureReport]);
-    }
+        // Cari data ExpenditureReport berdasarkan ID
+        $expenditureReport = ExpenditureReport::findOrFail($expenditure_id);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        // Update data ExpenditureReport
+        $expenditureReport->update([
+            'salaries_id' => $validatedData['salaries_id'] ?? null, // Set null jika tidak ada salaries_id
+            'issue_date' => $validatedData['issue_date'],
+            'amount' => $validatedData['amount'],
+            'information' => $validatedData['information'],
+            'action' => $validatedData['action'],
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
+        // Kembalikan respon JSON
+        return response()->json([
+            'message' => 'Data berhasil diperbarui.',
+            'data' => $expenditureReport,
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $expenditure_id)
     {
-        //
+        // Cari data ExpenditureReport berdasarkan ID
+        $expenditureReport = ExpenditureReport::findOrFail($expenditure_id);
+
+        // Hapus data ExpenditureReport
+        $expenditureReport->delete();
+
+        // Kembalikan respon JSON
+        return response()->json([
+            'message' => 'Data berhasil dihapus.',
+        ]);
     }
 }

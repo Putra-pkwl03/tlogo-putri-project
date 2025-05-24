@@ -15,7 +15,8 @@ use App\Http\Controllers\DriverRotationController;
 use App\Http\Controllers\DailyReportController;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\ExpenditureController;
+use App\Http\Controllers\ExpeditureController;
+use App\Http\Controllers\IncomeController;
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -55,7 +56,7 @@ Route::prefix('ticketings')->group(function () {
 });
 
 // PENGGAJIAN 
-Route::get('/salary/calculate/{userId}', [SalaryController::class, 'calculateSalary']);
+Route::get('/salary/calculate', [SalaryController::class, 'calculateSalary']);
 Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
 
 // ROLLING DRIVERS
@@ -95,9 +96,31 @@ Route::prefix('content-generate')->group(function () {
     Route::post('/storecontent', [ContentGeneratorController::class, 'store']);
 });
 
-// REPORT GENERATE
+// Daily REPORT GENERATE
 Route::prefix('dailyreports')->group(function () {
-    Route::get('/daily', [DailyReportController::class, 'index']);
-    Route::get('/daily/{id}', [DailyReportController::class, 'show']);
+    Route::get('/alldaily', [DailyReportController::class, 'index']);
     Route::get('/generate-report', [DailyReportController::class, 'calculatereport']);
+});
+
+// EXPENDITURE REPORT GENERATE
+Route::prefix('expenditures')->group(function () {
+    Route::get('/all', [ExpeditureController::class, 'index']);
+    Route::get('/generate', [ExpeditureController::class, 'storeformsalarie']);
+    Route::post('/create', [ExpeditureController::class, 'store']);
+    Route::put('/update/{id}', [ExpeditureController::class, 'update']);
+    Route::delete('/delete/{id}', [ExpeditureController::class, 'destroy']);
+});
+
+// INCOME REPORT GENERATE
+Route::prefix('income')->group(function () {
+    Route::get('/all', [IncomeController::class, 'index']);
+    Route::get('/create', [IncomeController::class, 'create']);
+});
+
+// REPORT GENERATE
+Route::prefix('reports')->group(function () {
+    Route::get('/bulan', [ReportController::class, 'index']);
+    Route::get('/generate', [ReportController::class, 'calculatereport']);
+    Route::get('/triwulan', [ReportController::class, 'rekapMingguan']);
+    Route::get('/tahun', [ReportController::class, 'rekapPerBulan']);
 });
