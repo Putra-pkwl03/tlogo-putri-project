@@ -8,6 +8,8 @@ use OpenAI;
 use App\Models\Articel;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+
 
 class ContentGeneratorController extends Controller
 {
@@ -200,36 +202,43 @@ class ContentGeneratorController extends Controller
     }    
 
     //Update artikel
-    public function updateArtikel($id)
-    {
-        Log::info("Mulai menerbitkan artikel dengan id: $id");
+    public function updateArtikel(Request $request, $id)
+{
+    Log::info("Mulai update artikel dengan id: $id");
 
-        try {
-            $artikel = Articel::find($id);
-            if (!$artikel) {
-                Log::warning("Artikel dengan id $id tidak ditemukan");
-                return response()->json(['error' => 'Artikel tidak ditemukan.'], 404);
-            }
-
-            $artikel->status = 'terbit';
-            $artikel->save();
-
-            Log::info("Artikel berhasil diterbitkan: ID $id");
-
-            return response()->json([
-                'message' => 'Status artikel berhasil diubah menjadi "terbit".',
-                'data' => $artikel
-            ]);
-        } catch (\Exception $e) {
-            Log::error("Error saat menerbitkan artikel: " . $e->getMessage());
-            return response()->json([
-                'error' => 'Terjadi kesalahan server.',
-                'message' => $e->getMessage()
-            ], 500);
+    try {
+        $artikel = Articel::find($id);
+        if (!$artikel) {
+            Log::warning("Artikel dengan id $id tidak ditemukan");
+            return response()->json(['error' => 'Artikel tidak ditemukan.'], 404);
         }
-    }
 
-    //Hapus artikel
+        $validatedData = $request->validate([
+            'judul' => 'sometimes|string|max:255',
+            'pemilik' => 'sometimes|string|max:100',
+            'kategori' => 'sometimes|string',
+            'isi_konten' => 'sometimes|string',
+            'status' => 'sometimes|string|max:255',
+        ]);
+
+        $artikel->update($validatedData);
+
+        Log::info("Artikel berhasil diperbarui: ID $id");
+
+        return response()->json([
+            'message' => 'Artikel berhasil diperbarui.',
+            'data' => $artikel
+        ]);
+    } catch (\Exception $e) {
+        Log::error("Error saat update artikel: " . $e->getMessage());
+        return response()->json([
+            'error' => 'Terjadi kesalahan server.',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
       public function destroy($id)
     {
         Log::info("Mulai menghapus artikel dengan id: $id");
@@ -359,6 +368,37 @@ class ContentGeneratorController extends Controller
                 'message' => 'Gagal mengambil data artikel terbit'
             ], 500);
         }
+    }
+
+    public function updateGambar(Request $request, $id)
+    {
+        $request->validate([
+            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
+
+        $artikel = Articel::find($id);
+        if (!$artikel) {
+            return response()->json(['error' => 'Artikel tidak ditemukan'], 404);
+        }
+
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            $filename = $file->getClientOriginalName();
+            $folderPath = storage_path('app/public/gambar');
+
+            if (!file_exists($folderPath)) {
+                mkdir($folderPath, 0777, true);
+            }
+            $file->move($folderPath, $filename);
+
+            $artikel->gambar = $filename;
+            $artikel->save();
+        }
+
+        return response()->json([
+            'message' => 'Gambar berhasil diperbarui.',
+            'data' => $artikel
+        ]);
     }
 
 }
