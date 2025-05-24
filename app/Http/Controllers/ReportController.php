@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\Report;
+use App\Models\ExpenditureReport;
+use App\Models\DailyReport;
 
 class ReportController extends Controller
 {
@@ -86,43 +89,45 @@ class ReportController extends Controller
     public function calculatereport()
     {
         $tanggalList = DB::table('expenditure_report')
-        ->select('issue_date as tanggal')
-        ->union(
-            DB::table('daily_reports')->select('arrival_time as tanggal')
-        )
-        ->distinct()
-        ->pluck('tanggal');
-
+            ->select('issue_date as tanggal')
+            ->union(
+                DB::table('daily_reports')->select('arrival_time as tanggal')
+            )
+            ->distinct()
+            ->pluck('tanggal');
+            
+        $rekapreport = [];
+            
         foreach ($tanggalList as $tanggal) {
             // Total pengeluaran (tidak termasuk gaji driver & gaji owner)
             $totalPengeluaran = DB::table('expenditure_report')
-                ->where('tanggal', $tanggal)
+                ->where('issue_date', $tanggal)
                 ->whereRaw("LOWER(information) NOT LIKE ?", ['%gaji driver%'])
                 ->whereRaw("LOWER(information) NOT LIKE ?", ['%gaji owner%'])
                 ->sum('amount');
-    
+        
             // Total pemasukan
             $totalKas = DB::table('daily_reports')
-                ->where('tanggal', $tanggal)
+                ->where('arrival_time', $tanggal)
                 ->sum('cash');
-
+        
             $totalOpp = DB::table('daily_reports')
-                ->where('tanggal', $tanggal)
+                ->where('arrival_time', $tanggal)
                 ->sum('oop');
-    
+        
             // Jumlah keterangan (masih hitung semua entri, termasuk gaji)
             $jumlahjeep = DB::table('daily_reports')
-                ->where('tanggal', $tanggal)
+                ->where('arrival_time', $tanggal)
                 ->count('id_daily_report');
-
-            $oppBersih = $totalKas + $totalOpp;
-            
-            $kasbersih = $oppBersih - $totalPengeluaran;
-
-    
-            // Simpan atau update ke tabel rekap
-            $rekapreport= Report::Create(
-                ['report_date' => $tanggal,
+        
+            $oppBersih = $totalOpp - $totalPengeluaran;
+        
+            $kasbersih = $totalKas + $oppBersih;
+        
+            // Update or create report berdasarkan report_date unik
+            $report = Report::updateOrCreate(
+                ['report_date' => $tanggal], // kondisi unik
+                [
                     'cash' => $totalKas,
                     'operational' => $totalOpp,
                     'expenditure' => $totalPengeluaran,
@@ -131,55 +136,15 @@ class ReportController extends Controller
                     'jeep_amount' => $jumlahjeep,
                 ]
             );
+        
+            $rekapreport[] = $report;
         }
     
         return response()->json([
             'message' => 'Rekap berhasil disimpan.',
-            'data' => $rekapreport,]);
-
-    }
-    public function create()
-    {
-        //
+            'data' => $rekapreport,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+    
 }
