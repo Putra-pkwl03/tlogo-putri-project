@@ -16,6 +16,8 @@ class Salaries extends Model
         'nama',
         'role',
         'no_lambung',
+        'kas',
+        'operasional',
         'salarie',
         'total_salary',
         'payment_date',
