@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tour_packages', function (Blueprint $table) {
             $table->id();
             $table->string('package_name', 100)->nullable(false);
+            $table->string('slug', 50)->nullable(false);
             $table->text('description')->nullable();
             $table->integer('price')->nullable(false);
             $table->boolean('is_active')->default(true);

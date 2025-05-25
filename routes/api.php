@@ -87,7 +87,7 @@ Route::get('/payment/orders', [PaymentController::class, 'index']);
 Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
 
 Route::get('/packages', [PackageController::class, 'index']);
-Route::get('/packages/{id}', [PackageController::class, 'show']);
+Route::get('/packages/{slug}', [PackageController::class, 'show']);
 
 // GENERATE CONTENT
 Route::prefix('content-generate')->group(function () {
