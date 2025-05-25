@@ -179,16 +179,16 @@ class SalaryController extends Controller
         ]);
     }
 
-    public function updateSalaryStatus($id)
+    public function updateSalaryStatus()
     {
-        $salary = Salaries::findOrFail($id);
-        $salary->status = 'diterima';
-        $salary->payment_date = now();
-        $salary->save();
+        $updated = Salaries::where('status', 'belum')->update([
+            'status' => 'diterima',
+            'payment_date' => now()
+        ]);
 
         return response()->json([
-            'message' => 'Status gaji berhasil diubah menjadi diterima.',
-            'data' => $salary
+            'message' => 'Status semua gaji yang belum diterima telah diubah menjadi diterima.',
+            'total_updated' => $updated
         ]);
     }
 
