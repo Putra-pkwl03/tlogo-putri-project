@@ -170,9 +170,17 @@ class SalaryController extends Controller
         ]);
     }
 
-    public function salaryHistory($userId)
+    public function salaryHistory(Request $request, $userId)
     {
-        $history = Salaries::where('user_id', $userId)->get();
+        $status = $request->query('status'); 
+
+        $query = Salaries::where('user_id', $userId);
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $history = $query->get();
 
         return response()->json([
             'salary_history' => $history
