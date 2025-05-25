@@ -219,6 +219,7 @@ class ContentGeneratorController extends Controller
             'kategori' => 'sometimes|string',
             'isi_konten' => 'sometimes|string',
             'status' => 'sometimes|string|max:255',
+            'gambar' => 'sometimes|string|max:255',
         ]);
 
         $artikel->update($validatedData);
