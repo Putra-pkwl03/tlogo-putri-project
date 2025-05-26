@@ -41,11 +41,18 @@ class DailyReportController extends Controller
             'rn' => 50000,
             'op' => 20000,
         ];
+
+        $informationValues = [
+            20000 => 'RN',
+            50000 => 'OP',
+        ];
     
         $salaries = Salaries::with([
             'ticketing.booking.package',
             'ticketing.jeep'
-        ])->get();
+        ])
+        ->where('role', 'Driver')
+        ->get();
         
         $reports = [];
         
@@ -75,6 +82,10 @@ class DailyReportController extends Controller
                     $marketing = $value;
                     break;
                 }
+            }
+            $information = 'INDUK';
+            if (isset($informationValues[$marketing])) {
+                $information = $informationValues[$marketing];
             }
         
             $cash = $cashValues[$package] ?? 0;
@@ -107,7 +118,7 @@ class DailyReportController extends Controller
                     'total_cash'     => $cash + $oop,
                     'price'          => 0,
                     'amount'         => 0,
-                    'information'    => 'INDUK',
+                    'information'    => $information,
                     'arrival_time'   => $booking->tour_date
                 ]
             );
