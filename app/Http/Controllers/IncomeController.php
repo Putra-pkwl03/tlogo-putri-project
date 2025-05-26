@@ -30,24 +30,30 @@ class IncomeController extends Controller
          $incomeReports = [];
      
          foreach ($dailys as $daily) {
-            // Cari expediture yang terkait dengan salary_id dari daily report
-             $expenditure = ExpenditureReport::where('salaries_id', $daily->salaries_id)->first();
-             $salary = Salaries::where('salaries_id', $daily->salaries_id)->first();
-             
-             // Cek apakah expediture ditemukan
-             if (!$expenditure) {
-                 continue; // Lewati jika tidak ada data expediture
-             }
-             $incomeReports[] = IncomeReport::create([
-                 'booking_id'  => $daily->booking_id,
-                 'ticketing_id'   => $salary->ticketing_id,
-                 'expenditure_id'  => $expenditure->expenditure_id,
-                 'booking_date'  => $daily->arrival_time,
-                 'income'  => $daily->paying_guest,
-                 'expediture' => $daily->driver_accept,
-                 'cash'  => $daily->total_cash,
-             ]);
-         }
+            $expenditure = ExpenditureReport::where('salaries_id', $daily->salaries_id)->first();
+            $salary = Salaries::where('salaries_id', $daily->salaries_id)->first();
+        
+            if (!$expenditure || !$salary) {
+                continue;
+            }
+        
+            // Cek unik ticketing_id
+            $exists = IncomeReport::where('ticketing_id', $salary->ticketing_id)->exists();
+            if ($exists) {
+                continue; // Skip jika sudah ada record dengan ticketing_id sama
+            }
+        
+            $incomeReports[] = IncomeReport::create([
+                'booking_id' => $daily->booking_id,
+                'ticketing_id' => $salary->ticketing_id,
+                'expenditure_id' => $expenditure->expenditure_id,
+                'booking_date' => $daily->arrival_time,
+                'income' => $daily->paying_guest,
+                'expediture' => $daily->driver_accept,
+                'cash' => $daily->total_cash,
+            ]);
+        }
+        
      
          return response()->json([
              'message' => 'Laporan berhasil dibuat.',

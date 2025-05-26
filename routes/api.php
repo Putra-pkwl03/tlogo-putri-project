@@ -17,6 +17,7 @@ use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ExpeditureController;
 use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\RekapPresensiController;
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -58,8 +59,10 @@ Route::prefix('ticketings')->group(function () {
 // PENGGAJIAN 
 Route::get('/salary/calculate', [SalaryController::class, 'calculateSalary']);
 Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
+Route::put('/salary/status', [SalaryController::class, 'updateSalaryStatus']);
 
-// ROLLING DRIVERS
+
+// ROLLING DRIVERS-++++
 Route::prefix('driver-rotations')->group(function () {
     Route::get('/', [DriverRotationController::class, 'index']); // lihat rotasi harian
     Route::post('/generate', [DriverRotationController::class, 'generate']); // buat rotasi besok
@@ -84,7 +87,7 @@ Route::get('/payment/orders', [PaymentController::class, 'index']);
 Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
 
 Route::get('/packages', [PackageController::class, 'index']);
-Route::get('/packages/{id}', [PackageController::class, 'show']);
+Route::get('/packages/{slug}', [PackageController::class, 'show']);
 
 // GENERATE CONTENT
 Route::prefix('content-generate')->group(function () {
@@ -129,3 +132,11 @@ Route::prefix('reports')->group(function () {
     Route::get('/triwulan', [ReportController::class, 'rekapMingguan']);
     Route::get('/tahun', [ReportController::class, 'rekapPerBulan']);
 });
+
+// REKAP PRESENSI
+Route::prefix('rekap-presensi')->group(function () {
+    Route::get('/rekap', [App\Http\Controllers\RekapPresensiController::class, 'rekapPresensi']);
+    Route::get('/all', [App\Http\Controllers\RekapPresensiController::class, 'index']);
+    Route::get('/user/{userId}', [App\Http\Controllers\RekapPresensiController::class, 'showByUser']);
+});
+// Route::get('/rekap-presensi', [App\Http\Controllers\RekapPresensiController::class, 'rekapPresensi']);

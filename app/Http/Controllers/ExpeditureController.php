@@ -15,7 +15,7 @@ class ExpeditureController extends Controller
     {
         $expenditureReport = ExpenditureReport::all();
         return response()->json([
-            'salaries' => $expenditureReport,
+            'expenditure' => $expenditureReport,
         ]);
     }
 
@@ -50,25 +50,32 @@ class ExpeditureController extends Controller
      */    
 
      public function storeformsalarie()
-     {
-         $salaries = Salaries::all();
-         $expenditureReports = [];
-     
-         foreach ($salaries as $salary) {
-             $expenditureReports[] = ExpenditureReport::create([
-                 'salaries_id'  => $salary->salaries_id,
-                 'issue_date'   => $salary->payment_date,
-                 'amount'       => $salary->total_salary,
-                 'information'  => 'gaji ' . $salary->role . ' ' . $salary->nama,
-                 'action'       => 'menambah gaji ' . $salary->role,
-             ]);
-         }
-     
-         return response()->json([
-             'message' => 'Laporan berhasil dibuat.',
-             'data'    => $expenditureReports
-         ]);
-     }
+    {
+        $salaries = Salaries::all();
+        $expenditureReports = [];
+    
+        foreach ($salaries as $salary) {
+            // Cek apakah expenditure report sudah ada untuk salaries_id ini
+            $exists = ExpenditureReport::where('salaries_id', $salary->salaries_id)->exists();
+            if ($exists) {
+                continue; // Lewati kalau sudah ada
+            }
+        
+            $expenditureReports[] = ExpenditureReport::create([
+                'salaries_id'  => $salary->salaries_id,
+                'issue_date'   => $salary->payment_date,
+                'amount'       => $salary->total_salary,
+                'information'  => 'gaji ' . $salary->role . ' ' . $salary->nama,
+                'action'       => 'menambah gaji ' . $salary->role,
+            ]);
+        }
+    
+        return response()->json([
+            'message' => 'Laporan berhasil dibuat.',
+            'data'    => $expenditureReports
+        ]);
+    }
+
      
     public function update(Request $request, string $expenditure_id)
     {

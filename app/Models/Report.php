@@ -10,6 +10,7 @@ class Report extends Model
     /** @use HasFactory<\Database\Factories\ReportFactory> */
     use HasFactory;
 
+    protected $table = 'report';
     protected $primaryKey = 'report_id';
     protected $guarded = ['report_id'];
 

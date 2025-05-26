@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('daily_reports', function (Blueprint $table) {
             $table->id('id_daily_report');
             $table->unsignedBigInteger('booking_id')->nullable();
-            $table->unsignedBigInteger('salaries_id')->nullable();
-            $table->string('stomach_no',100);
+            $table->unsignedBigInteger('salaries_id')->nullable()->unique(); // unique di sini
+            $table->string('stomach_no', 100);
             $table->string('touring_packet', 100);
             $table->text('information')->nullable();
-            $table->string('code',100)->nullable();
+            $table->string('code', 100)->nullable();
             $table->decimal('marketing', 10, 2)->nullable();
             $table->decimal('cash', 10, 2);
             $table->decimal('oop', 10, 2);
@@ -30,11 +30,12 @@ return new class extends Migration
             $table->decimal('paying_guest', 10, 2);
             $table->datetime('arrival_time');
             $table->timestamps();
-
+    
             $table->foreign('booking_id')->references('booking_id')->on('bookings')->onDelete('cascade');
             $table->foreign('salaries_id')->references('salaries_id')->on('salaries')->onDelete('cascade');
         });
     }
+    
 
     /**
      * Reverse the migrations.

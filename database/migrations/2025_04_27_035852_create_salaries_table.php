@@ -20,9 +20,12 @@ class CreateSalariesTable extends Migration
             $table->string('nama');
             $table->string('role');
             $table->string('no_lambung');
+            $table->float('kas')->default(0);
+            $table->float('operasional')->default(0);
             $table->float('salarie');
             $table->float('total_salary');
             $table->date('payment_date');
+            $table->enum('status', ['belum', 'diterima'])->default('belum');
             $table->timestamps();
 
             $table->foreign('ticketing_id')->references('id')->on('ticketings')->onDelete('cascade');
