@@ -92,6 +92,8 @@ class SalaryController extends Controller
                     'nama' => $driver->name,
                     'role' => $driver->role,
                     'no_lambung' => $driver->plat_jeep ?? '-',
+                    'kas' => $kas,
+                    'operasional' => $operasional,
                     'salarie' => $driverShare,
                     'total_salary' => $driverShare,
                     'payment_date' => Carbon::now()->toDateString(),
@@ -136,6 +138,8 @@ class SalaryController extends Controller
                         'nama' => $owner->name,
                         'role' => $owner->role,
                         'no_lambung' => $driver->plat_jeep ?? '-',
+                        'kas' => $kas,
+                        'operasional' => $operasional,
                         'salarie' => $ownerShare,
                         'total_salary' => $ownerShare,
                         'payment_date' => Carbon::now()->toDateString(),
@@ -166,25 +170,33 @@ class SalaryController extends Controller
         ]);
     }
 
-    public function salaryHistory($userId)
+    public function salaryHistory(Request $request, $userId)
     {
-        $history = Salaries::where('user_id', $userId)->get();
+        $status = $request->query('status'); 
+
+        $query = Salaries::where('user_id', $userId);
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $history = $query->get();
 
         return response()->json([
             'salary_history' => $history
         ]);
     }
 
-    public function updateSalaryStatus($id)
+    public function updateSalaryStatus()
     {
-        $salary = Salaries::findOrFail($id);
-        $salary->status = 'diterima';
-        $salary->payment_date = now();
-        $salary->save();
+        $updated = Salaries::where('status', 'belum')->update([
+            'status' => 'diterima',
+            'payment_date' => now()
+        ]);
 
         return response()->json([
-            'message' => 'Status gaji berhasil diubah menjadi diterima.',
-            'data' => $salary
+            'message' => 'Status semua gaji yang belum diterima telah diubah menjadi diterima.',
+            'total_updated' => $updated
         ]);
     }
 

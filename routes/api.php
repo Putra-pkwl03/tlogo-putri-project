@@ -59,10 +59,10 @@ Route::prefix('ticketings')->group(function () {
 // PENGGAJIAN 
 Route::get('/salary/calculate', [SalaryController::class, 'calculateSalary']);
 Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
-Route::put('/salary/status/{id}', [SalaryController::class, 'updateSalaryStatus']);
+Route::put('/salary/status', [SalaryController::class, 'updateSalaryStatus']);
 
 
-// ROLLING DRIVERS
+// ROLLING DRIVERS-++++
 Route::prefix('driver-rotations')->group(function () {
     Route::get('/', [DriverRotationController::class, 'index']); // lihat rotasi harian
     Route::post('/generate', [DriverRotationController::class, 'generate']); // buat rotasi besok
@@ -87,7 +87,7 @@ Route::get('/payment/orders', [PaymentController::class, 'index']);
 Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
 
 Route::get('/packages', [PackageController::class, 'index']);
-Route::get('/packages/{id}', [PackageController::class, 'show']);
+Route::get('/packages/{slug}', [PackageController::class, 'show']);
 
 // GENERATE CONTENT
 Route::prefix('content-generate')->group(function () {
