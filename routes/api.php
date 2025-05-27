@@ -62,12 +62,14 @@ Route::prefix('ticketings')->group(function () {
 // Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
 // Route::put('/salary/status', [SalaryController::class, 'updateSalaryStatus']);
 
+Route::prefix('salary')->group(function () {
+    Route::get('/previews', [SalaryPreviewController::class, 'index']); 
+    Route::post('/previews/generate', [SalaryPreviewController::class, 'generatePreviews']); 
+    Route::get('/preview/{userId}/{role}', [SalaryController::class, 'previewSalary']);
+    Route::post('/store/{userId}/{role}', [SalaryController::class, 'storeSalary']);
+    Route::get('/all', [SalaryController::class, 'getAllSalaries']);
+});
 
-Route::get('/salary/preview/{userId}/{role}', [SalaryController::class, 'previewSalary']);
-Route::post('/salaries/store/{userId}/{role}', [SalaryController::class, 'storeSalary']);
-Route::get('/salaries', [SalaryController::class, 'getAllSalaries']);
-Route::get('/salary/previews', [SalaryPreviewController::class, 'index']);
-Route::post('/salary/previews/generate', [SalaryPreviewController::class, 'generatePreviews']);
 
 
 
