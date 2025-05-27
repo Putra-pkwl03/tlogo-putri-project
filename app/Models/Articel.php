@@ -18,6 +18,7 @@ class Articel extends Model
     'kategori',
     'isi_konten',
     'gambar',
-    'status'
+    'status',
+    'caption_gambar'
     ];
 }
