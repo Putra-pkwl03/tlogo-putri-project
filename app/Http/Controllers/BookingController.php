@@ -100,9 +100,9 @@ class BookingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy($order_id)
     {
-        $data = Booking::find($id);
+        $data = Booking::where('order_id', $order_id)->first();
 
         if(!$data){
             return response()->json([
