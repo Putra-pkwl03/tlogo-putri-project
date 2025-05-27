@@ -44,11 +44,11 @@ class SalaryController extends Controller
                         'name' => $user->name,
                         'email' => $user->email,
                         'role' => $user->role,
-                        'salary' => 1000000,
-                        'gaji_bulan_ini' => 'Rp 1.000.000',
+                        'salary' => 2000000,
+                        'gaji_bulan_ini' => 'Rp 2.000.000',
                         'status' => $preview?->status ?? 'belum',
                     ],
-                    'total_fo_share' => 1000000,
+                    'total_fo_share' => 2000000,
             ]);
         }
         
@@ -307,36 +307,4 @@ public function getAllSalaries(Request $request)
         'data' => $salaries
     ]);
 }
-
-
-    // public function salaryHistory(Request $request, $userId)
-    // {
-    //     $status = $request->query('status'); 
-
-    //     $query = Salaries::where('user_id', $userId);
-
-    //     if ($status) {
-    //         $query->where('status', $status);
-    //     }
-
-    //     $history = $query->get();
-
-    //     return response()->json([
-    //         'salary_history' => $history
-    //     ]);
-    // }
-
-    // public function updateSalaryStatus()
-    // {
-    //     $updated = Salaries::where('status', 'belum')->update([
-    //         'status' => 'diterima',
-    //         'payment_date' => now()
-    //     ]);
-
-    //     return response()->json([
-    //         'message' => 'Status semua gaji yang belum diterima telah diubah menjadi diterima.',
-    //         'total_updated' => $updated
-    //     ]);
-    // }
-
 }
