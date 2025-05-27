@@ -49,7 +49,7 @@ class ExpeditureController extends Controller
      * Store a newly created resource in storage.
      */    
 
-     public function storeformsalarie()
+    public function calculate()
     {
         $salaries = Salaries::all();
         $expenditureReports = [];
@@ -60,21 +60,35 @@ class ExpeditureController extends Controller
             if ($exists) {
                 continue; // Lewati kalau sudah ada
             }
-        
-            $expenditureReports[] = ExpenditureReport::create([
+            $expenditureReports[] = [
                 'salaries_id'  => $salary->salaries_id,
                 'issue_date'   => $salary->payment_date,
                 'amount'       => $salary->total_salary,
                 'information'  => 'gaji ' . $salary->role . ' ' . $salary->nama,
                 'action'       => 'menambah gaji ' . $salary->role,
-            ]);
+            ];
+        }
+        return $expenditureReports;
+    }
+
+
+    public function storeformsalarie()
+    {
+        $expenditureReports = $this->calculate();
+        $savedReports = [];
+    
+        foreach ($expenditureReports as $reportData) {
+            if (!ExpenditureReport::where('salaries_id', $reportData['salaries_id'])->exists()) {
+                $savedReports[] = ExpenditureReport::create($reportData);
+            }
         }
     
         return response()->json([
             'message' => 'Laporan berhasil dibuat.',
-            'data'    => $expenditureReports
+            'data'    => $savedReports
         ]);
     }
+
 
      
     public function update(Request $request, string $expenditure_id)

@@ -33,6 +33,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Schema::table('income_report', function (Blueprint $table) {
+        //     $table->dropForeign(['salaries_id']); // Hapus foreign key salaries_id
+        //     $table->dropForeign(['ticketing_id']); // Hapus foreign key salaries_id
+        //     $table->dropForeign(['expenditure_id']); // Hapus foreign key salaries_id
+        // });
         Schema::dropIfExists('income_report');
     }
 };

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\SalaryPreview;
 use App\Models\Ticketing;
 use App\Models\Salary;
-
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\User; 
