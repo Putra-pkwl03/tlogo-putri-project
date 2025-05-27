@@ -38,4 +38,9 @@ class Ticketing extends Model
         return $this->hasOne(Salaries::class, 'ticketing_id', 'id');
     }
 
+    // Relasi ke histori ticketing
+    public function histories()
+    {
+        return $this->hasMany(HistoryTicketing::class);
+    }
 }
