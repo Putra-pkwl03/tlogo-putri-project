@@ -18,6 +18,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ExpeditureController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\RekapPresensiController;
+use App\Http\Controllers\SalaryPreviewController;
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -57,9 +58,17 @@ Route::prefix('ticketings')->group(function () {
 });
 
 // PENGGAJIAN 
-Route::get('/salary/calculate', [SalaryController::class, 'calculateSalary']);
-Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
-Route::put('/salary/status', [SalaryController::class, 'updateSalaryStatus']);
+
+// Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
+// Route::put('/salary/status', [SalaryController::class, 'updateSalaryStatus']);
+
+
+Route::get('/salary/preview/{userId}/{role}', [SalaryController::class, 'previewSalary']);
+Route::post('/salaries/store/{userId}/{role}', [SalaryController::class, 'storeSalary']);
+Route::get('/salaries', [SalaryController::class, 'getAllSalaries']);
+Route::get('/salary/previews', [SalaryPreviewController::class, 'index']);
+Route::post('/salary/previews/generate', [SalaryPreviewController::class, 'generatePreviews']);
+
 
 
 // ROLLING DRIVERS-++++
