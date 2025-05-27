@@ -7,12 +7,29 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
+use App\Models\Voucher;
 
 class BookingService
 {
     public function createBooking($request)
     {
-        $data = $request->all();
+        $request->validate([
+            'customer_name' => 'required|string|max:100',
+            'customer_email' => 'required|email|max:100',
+            'customer_phone' => 'required|string|max:20',
+            'package_id' => 'required|exists:tour_packages,id',
+            'tour_date' => 'required|date|after_or_equal:today',
+            'start_time' => 'required|date_format:H:i',
+            'qty' => 'required|integer|min:1',
+            'gross_amount' => 'required|numeric|min:0',
+            'payment_type' => 'required|in:dp,full',    
+        ]);
+
+        $data = $request->only([
+            'customer_name', 'customer_email', 'customer_phone', 'package_id',
+            'tour_date', 'start_time', 'qty', 'gross_amount', 'payment_type', 'voucher', 'referral'
+        ]);
+
 
         $data['order_id'] = 'TP-' . date('Ymd') . '-' . mt_rand(1000, 9999);
 
@@ -22,6 +39,20 @@ class BookingService
 
         $isDP = $request->payment_type === 'dp';
         $totalAmount = $data['gross_amount'] *  $data['qty'];
+
+        $discountAmount = 0;
+        if (!empty($data['voucher'])) {
+            $voucher = Voucher::where('code', $data['voucher'])->first();
+
+            if ($voucher) {
+                $discountAmount = $totalAmount * ($voucher->discount / 100);
+                $totalAmount -= $discountAmount;
+            } else {
+                Log::warning('Invalid voucher code: ' . $data['voucher']);
+                return response()->json(['message' => 'Invalid voucher code'], 422);
+            }
+        }
+        
         $amountToPay = $isDP ? $totalAmount * 0.3 : $totalAmount;
 
         $data['dp_amount'] = $amountToPay;
@@ -32,9 +63,6 @@ class BookingService
         Log::info(('Booking Created: ' . json_encode($order)));
         $order->refresh();
 
-        /*Install Midtrans PHP Library (https://github.com/Midtrans/midtrans-php)
-        composer require midtrans/midtrans-php*/
-        
         // Set your Merchant Server Key
         \Midtrans\Config::$serverKey = config('midtrans.server_key');
         // Set to Development/Sandbox Environment (default). Set to true for Production Environment (accept real transaction).
@@ -54,6 +82,7 @@ class BookingService
                 'email' => $order->customer_email,
                 'phone' => $order->customer_phone,
             ],
+            'notification_url' => config('midtrans.notification_url'),
         ];
         
 
