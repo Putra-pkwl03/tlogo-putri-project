@@ -18,8 +18,6 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ExpeditureController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\RekapPresensiController;
-use App\Http\Controllers\HistoryTicketingController;
-use App\Http\Controllers\SalaryPreviewController;
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -105,6 +103,12 @@ Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
 
 Route::get('/packages', [PackageController::class, 'index']);
 Route::get('/packages/{slug}', [PackageController::class, 'show']);
+
+Route::get('/vouchers', [VoucherController::class, 'index']);
+Route::post('/vouchers', [VoucherController::class, 'store']);
+Route::get('/vouchers/{id}', [VoucherController::class, 'show']);
+Route::put('/vouchers/{id}', [VoucherController::class, 'update']);
+Route::delete('/vouchers/{id}', [VoucherController::class, 'destroy']); 
 
 // GENERATE CONTENT
 Route::prefix('content-generate')->group(function () {
