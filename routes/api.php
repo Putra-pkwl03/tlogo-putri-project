@@ -19,6 +19,7 @@ use App\Http\Controllers\ExpeditureController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\RekapPresensiController;
 use App\Http\Controllers\HistoryTicketingController;
+use App\Http\Controllers\SalaryPreviewController;
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -65,12 +66,20 @@ Route::prefix('history-ticketings')->group(function () {
 });
 
 // PENGGAJIAN 
-Route::get('/salary/calculate', [SalaryController::class, 'calculateSalary']);
-Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
-Route::put('/salary/status/{id}', [SalaryController::class, 'updateSalaryStatus']);
+
+// Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
+// Route::put('/salary/status', [SalaryController::class, 'updateSalaryStatus']);
 
 
-// ROLLING DRIVERS
+Route::get('/salary/preview/{userId}/{role}', [SalaryController::class, 'previewSalary']);
+Route::post('/salaries/store/{userId}/{role}', [SalaryController::class, 'storeSalary']);
+Route::get('/salaries', [SalaryController::class, 'getAllSalaries']);
+Route::get('/salary/previews', [SalaryPreviewController::class, 'index']);
+Route::post('/salary/previews/generate', [SalaryPreviewController::class, 'generatePreviews']);
+
+
+
+// ROLLING DRIVERS-++++
 Route::prefix('driver-rotations')->group(function () {
     Route::get('/', [DriverRotationController::class, 'index']); // lihat rotasi harian
     Route::post('/generate', [DriverRotationController::class, 'generate']); // buat rotasi besok
@@ -95,12 +104,13 @@ Route::get('/payment/orders', [PaymentController::class, 'index']);
 Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
 
 Route::get('/packages', [PackageController::class, 'index']);
-Route::get('/packages/{id}', [PackageController::class, 'show']);
+Route::get('/packages/{slug}', [PackageController::class, 'show']);
 
 // GENERATE CONTENT
 Route::prefix('content-generate')->group(function () {
     Route::post('/generate', [ContentGeneratorController::class, 'generate']);
     Route::post('/optimize', [ContentGeneratorController::class, 'optimize']);
+    Route::post('/customoptimize', [ContentGeneratorController::class, 'CustomOptimize']);
     Route::post('/articleupdate/{id}', [ContentGeneratorController::class, 'updateArtikel']);
     Route::get('/draft', [ContentGeneratorController::class, 'read_all']);
     Route::post('/articledelete/{id}', [ContentGeneratorController::class, 'destroy']);

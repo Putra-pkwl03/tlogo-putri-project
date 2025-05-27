@@ -13,9 +13,15 @@ class PackageController extends Controller
         return response()->json($packages, 200);
     }
 
-    public function show($id)
+    public function show($slug)
     {
-        $package = TourPackage::find($id);
+
+        $package = TourPackage::where('slug', $slug)->first();
+
+        if (!$package) {
+            return response()->json(['error' => 'Package not found'], 404);
+        }
+
         return response()->json($package, 200);
-    }
+        }
 }
