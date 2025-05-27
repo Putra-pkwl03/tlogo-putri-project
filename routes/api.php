@@ -125,13 +125,13 @@ Route::prefix('content-generate')->group(function () {
 // Daily REPORT GENERATE
 Route::prefix('dailyreports')->group(function () {
     Route::get('/alldaily', [DailyReportController::class, 'index']);
-    Route::get('/generate-report', [DailyReportController::class, 'calculatereport']);
+    Route::post('/generate-report', [DailyReportController::class, 'store']);
 });
 
 // EXPENDITURE REPORT GENERATE
 Route::prefix('expenditures')->group(function () {
     Route::get('/all', [ExpeditureController::class, 'index']);
-    Route::get('/generate', [ExpeditureController::class, 'storeformsalarie']);
+    Route::post('/generate', [ExpeditureController::class, 'storeformsalarie']);
     Route::post('/create', [ExpeditureController::class, 'store']);
     Route::put('/update/{id}', [ExpeditureController::class, 'update']);
     Route::delete('/delete/{id}', [ExpeditureController::class, 'destroy']);
@@ -140,20 +140,20 @@ Route::prefix('expenditures')->group(function () {
 // INCOME REPORT GENERATE
 Route::prefix('income')->group(function () {
     Route::get('/all', [IncomeController::class, 'index']);
-    Route::get('/create', [IncomeController::class, 'create']);
+    Route::post('/create', [IncomeController::class, 'store']);
 });
 
 // REPORT GENERATE
 Route::prefix('reports')->group(function () {
     Route::get('/bulan', [ReportController::class, 'index']);
-    Route::get('/generate', [ReportController::class, 'calculatereport']);
+    Route::post('/generate', [ReportController::class, 'generateAndStore']);
     Route::get('/triwulan', [ReportController::class, 'rekapMingguan']);
     Route::get('/tahun', [ReportController::class, 'rekapPerBulan']);
 });
 
 // REKAP PRESENSI
 Route::prefix('rekap-presensi')->group(function () {
-    Route::get('/rekap', [App\Http\Controllers\RekapPresensiController::class, 'rekapPresensi']);
+    Route::post('/rekap', [App\Http\Controllers\RekapPresensiController::class, 'rekapPresensi']);
     Route::get('/all', [App\Http\Controllers\RekapPresensiController::class, 'index']);
     Route::get('/user/{userId}', [App\Http\Controllers\RekapPresensiController::class, 'showByUser']);
 });
