@@ -79,8 +79,6 @@ Route::prefix('salary')->group(function () {
 });
 
 
-
-
 // ROLLING DRIVERS-++++
 Route::prefix('driver-rotations')->group(function () {
     Route::get('/', [DriverRotationController::class, 'index']); // lihat rotasi harian
