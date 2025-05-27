@@ -18,6 +18,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ExpeditureController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\RekapPresensiController;
+use App\Http\Controllers\HistoryTicketingController;
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -54,6 +55,13 @@ Route::prefix('ticketings')->group(function () {
     Route::post('/create', [TicketingController::class, 'store']); // Create
     Route::get('/id/{id}', [TicketingController::class, 'show']); // Berdasarkan ID
     Route::delete('/delete/{id}', [TicketingController::class, 'destroy']); // Delete
+});
+
+// HISTORY TICKETINGS
+Route::prefix('history-ticketings')->group(function () {
+    Route::get('/', [HistoryTicketingController::class, 'index']); // Tampilkan semua histori ticketing
+    Route::get('/{id}', [HistoryTicketingController::class, 'show']); // Tampilkan histori berdasarkan ID
+    Route::get('/driver/{driver_id}', [HistoryTicketingController::class, 'historyByDriver']); // Tampilkan histori berdasarkan ID driver
 });
 
 // PENGGAJIAN 
