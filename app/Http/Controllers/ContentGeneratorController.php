@@ -18,17 +18,7 @@ class ContentGeneratorController extends Controller
         $query = $request->input('query');
         if (!$query) {
             return response()->json(['error' => 'Keyword tidak boleh kosong'], 400);
-        }
-        $client = OpenAI::client(env('OPENAI_API_KEY'));
-
-        $promptquery = "Optimalkan query pencarian berikut agar lebih relevan, spesifik, dan sesuai dengan pencarian di Google Programmable Search Engine. Outputkan hanya query yang telah dioptimalkan.\n\nQuery: {$query}";
-        $responseCategory = $client->chat()->create([
-            'model' => 'gpt-3.5-turbo',
-            'messages' => [['role' => 'user', 'content' => $promptquery]],
-        ]);
-
-        $optimizedQuery = trim($responseCategory['choices'][0]['message']['content']);
-        
+        }        
         $searchUrl = 'https://www.googleapis.com/customsearch/v1';
         $apiKey = env('GOOGLE_API_KEY');
         $cx = env('GOOGLE_CX');
@@ -51,7 +41,7 @@ class ContentGeneratorController extends Controller
             $response = Http::get($searchUrl, [
                 'key' => $apiKey,
                 'cx' => $cx,
-                'q' => $optimizedQuery,
+                'q' => $query,
                 'start' => $startIndex
             ]);
 
@@ -113,6 +103,8 @@ class ContentGeneratorController extends Controller
             return response()->json(['error' => 'Tidak ada konten yang bisa diambil dari link.']);
         }
         
+        $client = OpenAI::client(env('OPENAI_API_KEY'));
+
         // 3. Optimasi dengan OpenAI
         $promptMain = "Terjemahkan teks berikut ke dalam Bahasa Indonesia dengan gaya yang baik tanpa mengurangi jumlah kata. Jika jumlah kata kurang dari 150, kamu bisa tambahkan kata-kata yang sangat banyak dengan topik yang sama agar kata-kata konten yang di optimalkan lebih banyak. Lalu, buat kesimpulan di kalimat terakhir tanpa menyebutkan kalimat itu kesimpulan.\n\n" . $allContent;
         $responseMain = $client->chat()->create([
