@@ -27,8 +27,32 @@ class ReportController extends Controller
 
     public function rekapMingguan(Request $request)
     {
-        $startDate = Carbon::now()->subMonths(3)->startOfMonth();
-        $endDate = Carbon::now()->endOfMonth();
+        $quarter = $request->input('quarter'); // 1, 2, 3, atau 4
+        $year = $request->input('year');
+    
+        // Validasi quarter dan year
+        if (!in_array($quarter, [1, 2, 3, 4])) {
+            return response()->json(['error' => 'Invalid quarter'], 400);
+        }
+        if (!$year || !is_numeric($year) || $year < 1900 || $year > 2100) {
+            $year = Carbon::now()->year;
+        }
+    
+        $quarters = [
+            1 => ['start' => 1, 'end' => 3],
+            2 => ['start' => 4, 'end' => 6],
+            3 => ['start' => 7, 'end' => 9],
+            4 => ['start' => 10, 'end' => 12],
+        ];
+    
+        $startMonth = $quarters[$quarter]['start'];
+        $endMonth = $quarters[$quarter]['end'];
+    
+        $startDate = Carbon::create($year, $startMonth, 1)->startOfDay();
+        $endDate = Carbon::create($year, $endMonth, 1)->endOfMonth()->endOfDay();
+    
+        // Debugging: cek tanggal start dan end
+        // \Log::info("Start date: $startDate, End date: $endDate");
     
         $data = DB::table('report')
             ->whereBetween('report_date', [$startDate, $endDate])
@@ -41,7 +65,7 @@ class ReportController extends Controller
                 DB::raw('SUM(expenditure) as total_expenditure'),
                 DB::raw('SUM(net_cash) as total_net_cash'),
                 DB::raw('SUM(clean_operations) as total_clean_operations'),
-                DB::raw('SUM(jeep_amount) as total_jeep_amount'),
+                DB::raw('SUM(jeep_amount) as total_jeep_amount')
             )
             ->groupBy('tahun', 'bulan', 'minggu_ke')
             ->orderBy('tahun')
@@ -56,6 +80,7 @@ class ReportController extends Controller
         
         return response()->json($data);
     }
+
 
     public function rekapPerBulan(Request $request)
     {
@@ -86,7 +111,7 @@ class ReportController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function calculatereport()
+    public function calculateOnly()
     {
         $tanggalList = DB::table('expenditure_report')
             ->select('issue_date as tanggal')
@@ -94,57 +119,67 @@ class ReportController extends Controller
                 DB::table('daily_reports')->select('arrival_time as tanggal')
             )
             ->distinct()
+            ->orderBy('tanggal') // pastikan urut berdasarkan tanggal
             ->pluck('tanggal');
-            
+
         $rekapreport = [];
-            
+        $kasbersihSebelumnya = 0;
+
         foreach ($tanggalList as $tanggal) {
-            // Total pengeluaran (tidak termasuk gaji driver & gaji owner)
             $totalPengeluaran = DB::table('expenditure_report')
-                ->where('issue_date', $tanggal)
+                ->whereDate('issue_date', $tanggal)
                 ->whereRaw("LOWER(information) NOT LIKE ?", ['%gaji driver%'])
                 ->whereRaw("LOWER(information) NOT LIKE ?", ['%gaji owner%'])
                 ->sum('amount');
-        
-            // Total pemasukan
+
             $totalKas = DB::table('daily_reports')
-                ->where('arrival_time', $tanggal)
+                ->whereDate('arrival_time', $tanggal)
                 ->sum('cash');
-        
+
             $totalOpp = DB::table('daily_reports')
-                ->where('arrival_time', $tanggal)
+                ->whereDate('arrival_time', $tanggal)
                 ->sum('oop');
-        
-            // Jumlah keterangan (masih hitung semua entri, termasuk gaji)
+
             $jumlahjeep = DB::table('daily_reports')
-                ->where('arrival_time', $tanggal)
+                ->whereDate('arrival_time', $tanggal)
                 ->count('id_daily_report');
-        
+
             $oppBersih = $totalOpp - $totalPengeluaran;
-        
-            $kasbersih = $totalKas + $oppBersih;
-        
-            // Update or create report berdasarkan report_date unik
-            $report = Report::updateOrCreate(
-                ['report_date' => $tanggal], // kondisi unik
-                [
-                    'cash' => $totalKas,
-                    'operational' => $totalOpp,
-                    'expenditure' => $totalPengeluaran,
-                    'net_cash' => $kasbersih,
-                    'clean_operations' => $oppBersih,
-                    'jeep_amount' => $jumlahjeep,
-                ]
-            );
-        
-            $rekapreport[] = $report;
+            $kasbersihHariIni = $totalKas + $oppBersih;
+            $kasbersihAkumulasi = $kasbersihSebelumnya + $kasbersihHariIni;
+
+            $rekapreport[] = [
+                'report_date' => $tanggal,
+                'cash' => $totalKas,
+                'operational' => $totalOpp,
+                'expenditure' => $totalPengeluaran,
+                'net_cash' => $kasbersihAkumulasi,
+                'clean_operations' => $oppBersih,
+                'jeep_amount' => $jumlahjeep,
+            ];
+
+            $kasbersihSebelumnya = $kasbersihAkumulasi;
         }
-    
-        return response()->json([
-            'message' => 'Rekap berhasil disimpan.',
-            'data' => $rekapreport,
-        ]);
+
+        return $rekapreport;
     }
 
-    
+
+    public function generateAndStore()
+    {
+        // Panggil method kalkulasi
+        $rekapreport = $this->calculateOnly();
+
+        $savedReports = [];
+        foreach ($rekapreport as $data) {
+            if (!Report::where('report_date', $data['report_date'])->exists()) {
+                $savedReports[] = Report::updateOrCreate($data);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Laporan berhasil dikalkulasi dan disimpan.',
+            'data' => $savedReports
+        ]);
+    }    
 }
