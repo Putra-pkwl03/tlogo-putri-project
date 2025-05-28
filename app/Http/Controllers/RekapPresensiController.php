@@ -16,7 +16,7 @@ class RekapPresensiController extends Controller
         }
     }
 
-    public function rekapPresensi()
+    public function calculatePresensi()
     {
         $now = Carbon::now();
         $bulan = $now->month;
@@ -45,6 +45,16 @@ class RekapPresensiController extends Controller
                 $presensi[$driver_id]++;
             }
         }
+
+        return ['presensi' => $presensi, 'bulan' => $bulan, 'tahun' => $tahun];
+    }
+
+    public function rekapPresensi()
+    {
+        $data = $this->calculatePresensi();
+        $presensi = $data['presensi'];
+        $bulan = $data['bulan'];
+        $tahun = $data['tahun'];
 
         foreach ($presensi as $driver_id => $jumlah_kehadiran) {
             $user = DB::table('users')->where('id', $driver_id)->first();

@@ -58,19 +58,19 @@ class DriverRotationController extends Controller
     }
 
     public function assign($rotationId)
-{
-    $rotation = DriverRotation::with('driver')->findOrFail($rotationId);
+    {
+        $rotation = DriverRotation::with('driver')->findOrFail($rotationId);
 
-    $rotation->update([
-        'assigned' => true,
-        'skip_reason' => null, 
-    ]);
+        $rotation->update([
+            'assigned' => true,
+            'skip_reason' => null, 
+        ]);
 
-    $rotation->driver->update([
-        'last_assigned_at' => Carbon::now(),
-    ]);
+        $rotation->driver->update([
+            'last_assigned_at' => Carbon::now(),
+        ]);
 
-    return response()->json(['message' => 'Driver berhasil ditugaskan kembali.']);
-}
-
+        return response()->json(['message' => 'Driver berhasil ditugaskan kembali.']);
+    }
+    
 }
