@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\SalaryPreview;
 use App\Models\Ticketing;
 use App\Models\Salary;
-
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\User; 
@@ -18,7 +17,7 @@ class SalaryController extends Controller
     {
         if ($role === 'fron office') {
             // Cek apakah hari ini tanggal 1
-            if (Carbon::now()->day !== 26) {
+            if (Carbon::now()->day !== 1) {
                 return response()->json([
                     'message' => 'Gaji hanya bisa dilihat pada tanggal 1 setiap bulan.',
                     'data' => null,
@@ -45,11 +44,12 @@ class SalaryController extends Controller
                         'name' => $user->name,
                         'email' => $user->email,
                         'role' => $user->role,
-                        'salary' => 1000000,
-                        'gaji_bulan_ini' => 'Rp 1.000.000',
+                        'salary' => 2000000,
+                        'gaji_bulan_ini' => 'Rp 2.000.000',
+                        'payment_date' => $preview?->payment_date ?? null,
                         'status' => $preview?->status ?? 'belum',
                     ],
-                    'total_fo_share' => 1000000,
+                    'total_fo_share' => 2000000,
             ]);
         }
         
@@ -118,6 +118,9 @@ class SalaryController extends Controller
                     $operasional = 35000;
                     break;
                 case 450000:
+                    $kas = 35000;
+                    $operasional = 40000;
+                case 500000:
                     $kas = 35000;
                     $operasional = 40000;
                     break;
@@ -331,34 +334,42 @@ public function getAllSalaries(Request $request)
 }
 
 
-    // public function salaryHistory(Request $request, $userId)
-    // {
-    //     $status = $request->query('status'); 
+public function calculateTotalSalaryByUser($userId, $role)
+{
+    if (!in_array($role, ['driver', 'owner'])) {
+        return response()->json(['message' => 'Role tidak valid.'], 400);
+    }
 
-    //     $query = Salaries::where('user_id', $userId);
+    // Ambil semua data gaji yang diterima
+    $salaries = Salary::where('user_id', $userId)
+        ->where('role', $role)
+        ->where('status', 'Diterima')
+        ->orderBy('payment_date', 'desc')
+        ->get();
 
-    //     if ($status) {
-    //         $query->where('status', $status);
-    //     }
+    // Hitung total gaji
+    $totalSalary = $salaries->sum('salarie');
 
-    //     $history = $query->get();
+    // Ambil tanggal terakhir gajian jika ada
+    $latestPaymentDate = $salaries->first()?->payment_date;
 
-    //     return response()->json([
-    //         'salary_history' => $history
-    //     ]);
-    // }
+    // Ambil data user
+    $user = User::find($userId);
 
-    // public function updateSalaryStatus()
-    // {
-    //     $updated = Salaries::where('status', 'belum')->update([
-    //         'status' => 'diterima',
-    //         'payment_date' => now()
-    //     ]);
+    if (!$user) {
+        return response()->json([
+            'message' => 'User tidak ditemukan.',
+            'data' => null,
+        ], 404);
+    }
 
-    //     return response()->json([
-    //         'message' => 'Status semua gaji yang belum diterima telah diubah menjadi diterima.',
-    //         'total_updated' => $updated
-    //     ]);
-    // }
-
+    return response()->json([
+        'message' => "Total gaji $role dengan status 'Diterima' berhasil dihitung.",
+        'user_id' => $userId,
+        'nama' => $user->name,
+        'role' => $role,
+        'tanggal' => $latestPaymentDate,
+        'total_salary' => $totalSalary,
+    ]);
+}
 }

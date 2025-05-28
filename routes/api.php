@@ -18,9 +18,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ExpeditureController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\RekapPresensiController;
-
 use App\Http\Controllers\VoucherController;
-
 use App\Http\Controllers\HistoryTicketingController;
 use App\Http\Controllers\SalaryPreviewController;
 
@@ -74,13 +72,14 @@ Route::prefix('history-ticketings')->group(function () {
 // Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
 // Route::put('/salary/status', [SalaryController::class, 'updateSalaryStatus']);
 
-
-Route::get('/salary/preview/{userId}/{role}', [SalaryController::class, 'previewSalary']);
-Route::post('/salaries/store/{userId}/{role}', [SalaryController::class, 'storeSalary']);
-Route::get('/salaries', [SalaryController::class, 'getAllSalaries']);
-Route::get('/salary/previews', [SalaryPreviewController::class, 'index']);
-Route::post('/salary/previews/generate', [SalaryPreviewController::class, 'generatePreviews']);
-
+Route::prefix('salary')->group(function () {
+    Route::get('/previews', [SalaryPreviewController::class, 'index']); 
+    Route::post('/previews/generate', [SalaryPreviewController::class, 'generatePreviews']); 
+    Route::get('/preview/{userId}/{role}', [SalaryController::class, 'previewSalary']);
+    Route::post('/store/{userId}/{role}', [SalaryController::class, 'storeSalary']);
+    Route::get('/total/{userId}/{role}', [SalaryController::class, 'calculateTotalSalaryByUser']);
+    Route::get('/all', [SalaryController::class, 'getAllSalaries']);
+});
 
 
 // ROLLING DRIVERS-++++
