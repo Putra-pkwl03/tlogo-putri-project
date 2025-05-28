@@ -24,11 +24,9 @@ class IncomeController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function calculate()
     {
         $dailys = DailyReport::all();
-         $incomeReports = [];
-     
          foreach ($dailys as $daily) {
             $expenditure = ExpenditureReport::where('salaries_id', $daily->salaries_id)->first();
             $salary = Salaries::where('salaries_id', $daily->salaries_id)->first();
@@ -36,14 +34,7 @@ class IncomeController extends Controller
             if (!$expenditure || !$salary) {
                 continue;
             }
-        
-            // Cek unik ticketing_id
-            $exists = IncomeReport::where('ticketing_id', $salary->ticketing_id)->exists();
-            if ($exists) {
-                continue; // Skip jika sudah ada record dengan ticketing_id sama
-            }
-        
-            $incomeReports[] = IncomeReport::create([
+            $incomereport[] = [
                 'booking_id' => $daily->booking_id,
                 'ticketing_id' => $salary->ticketing_id,
                 'expenditure_id' => $expenditure->expenditure_id,
@@ -51,13 +42,24 @@ class IncomeController extends Controller
                 'income' => $daily->paying_guest,
                 'expediture' => $daily->driver_accept,
                 'cash' => $daily->total_cash,
-            ]);
-        }
+            ];
+         }
+        return $incomereport;
+    }
         
-     
+    public function store()
+    {
+        $incomereport = $this->calculate();
+        $savedReports = [];
+        foreach ($incomereport as $daily) {
+            // Cek unik ticketing_id
+            if (!IncomeReport::where('ticketing_id', $daily['ticketing_id'])->exists()) {
+                $savedReports[] = IncomeReport::create($daily);
+            }
+        }
          return response()->json([
              'message' => 'Laporan berhasil dibuat.',
-             'data'    => $incomeReports
+             'data'    => $savedReports
          ]);
     }
 }

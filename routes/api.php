@@ -18,7 +18,12 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ExpeditureController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\RekapPresensiController;
+
 use App\Http\Controllers\VoucherController;
+
+use App\Http\Controllers\HistoryTicketingController;
+use App\Http\Controllers\SalaryPreviewController;
+
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -57,13 +62,28 @@ Route::prefix('ticketings')->group(function () {
     Route::delete('/delete/{id}', [TicketingController::class, 'destroy']); // Delete
 });
 
+// HISTORY TICKETINGS
+Route::prefix('history-ticketings')->group(function () {
+    Route::get('/', [HistoryTicketingController::class, 'index']); // Tampilkan semua histori ticketing
+    Route::get('/{id}', [HistoryTicketingController::class, 'show']); // Tampilkan histori berdasarkan ID
+    Route::get('/driver/{driver_id}', [HistoryTicketingController::class, 'historyByDriver']); // Tampilkan histori berdasarkan ID driver
+});
+
 // PENGGAJIAN 
-Route::get('/salary/calculate', [SalaryController::class, 'calculateSalary']);
-Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
-Route::put('/salary/status/{id}', [SalaryController::class, 'updateSalaryStatus']);
+
+// Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
+// Route::put('/salary/status', [SalaryController::class, 'updateSalaryStatus']);
 
 
-// ROLLING DRIVERS
+Route::get('/salary/preview/{userId}/{role}', [SalaryController::class, 'previewSalary']);
+Route::post('/salaries/store/{userId}/{role}', [SalaryController::class, 'storeSalary']);
+Route::get('/salaries', [SalaryController::class, 'getAllSalaries']);
+Route::get('/salary/previews', [SalaryPreviewController::class, 'index']);
+Route::post('/salary/previews/generate', [SalaryPreviewController::class, 'generatePreviews']);
+
+
+
+// ROLLING DRIVERS-++++
 Route::prefix('driver-rotations')->group(function () {
     Route::get('/', [DriverRotationController::class, 'index']); // lihat rotasi harian
     Route::post('/generate', [DriverRotationController::class, 'generate']); // buat rotasi besok
@@ -100,6 +120,7 @@ Route::delete('/vouchers/{id}', [VoucherController::class, 'destroy']);
 Route::prefix('content-generate')->group(function () {
     Route::post('/generate', [ContentGeneratorController::class, 'generate']);
     Route::post('/optimize', [ContentGeneratorController::class, 'optimize']);
+    Route::post('/customoptimize', [ContentGeneratorController::class, 'CustomOptimize']);
     Route::post('/articleupdate/{id}', [ContentGeneratorController::class, 'updateArtikel']);
     Route::get('/draft', [ContentGeneratorController::class, 'read_all']);
     Route::post('/articledelete/{id}', [ContentGeneratorController::class, 'destroy']);
@@ -114,13 +135,13 @@ Route::prefix('content-generate')->group(function () {
 // Daily REPORT GENERATE
 Route::prefix('dailyreports')->group(function () {
     Route::get('/alldaily', [DailyReportController::class, 'index']);
-    Route::get('/generate-report', [DailyReportController::class, 'calculatereport']);
+    Route::post('/generate-report', [DailyReportController::class, 'store']);
 });
 
 // EXPENDITURE REPORT GENERATE
 Route::prefix('expenditures')->group(function () {
     Route::get('/all', [ExpeditureController::class, 'index']);
-    Route::get('/generate', [ExpeditureController::class, 'storeformsalarie']);
+    Route::post('/generate', [ExpeditureController::class, 'storeformsalarie']);
     Route::post('/create', [ExpeditureController::class, 'store']);
     Route::put('/update/{id}', [ExpeditureController::class, 'update']);
     Route::delete('/delete/{id}', [ExpeditureController::class, 'destroy']);
@@ -129,20 +150,20 @@ Route::prefix('expenditures')->group(function () {
 // INCOME REPORT GENERATE
 Route::prefix('income')->group(function () {
     Route::get('/all', [IncomeController::class, 'index']);
-    Route::get('/create', [IncomeController::class, 'create']);
+    Route::post('/create', [IncomeController::class, 'store']);
 });
 
 // REPORT GENERATE
 Route::prefix('reports')->group(function () {
     Route::get('/bulan', [ReportController::class, 'index']);
-    Route::get('/generate', [ReportController::class, 'calculatereport']);
+    Route::post('/generate', [ReportController::class, 'generateAndStore']);
     Route::get('/triwulan', [ReportController::class, 'rekapMingguan']);
     Route::get('/tahun', [ReportController::class, 'rekapPerBulan']);
 });
 
 // REKAP PRESENSI
 Route::prefix('rekap-presensi')->group(function () {
-    Route::get('/rekap', [App\Http\Controllers\RekapPresensiController::class, 'rekapPresensi']);
+    Route::post('/rekap', [App\Http\Controllers\RekapPresensiController::class, 'rekapPresensi']);
     Route::get('/all', [App\Http\Controllers\RekapPresensiController::class, 'index']);
     Route::get('/user/{userId}', [App\Http\Controllers\RekapPresensiController::class, 'showByUser']);
 });

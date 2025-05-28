@@ -6,6 +6,7 @@ use App\Models\Ticketing;
 use App\Models\Booking;
 use App\Models\Jeep;
 use Illuminate\Http\Request;
+use App\Models\HistoryTicketing;
 
 class TicketingController extends Controller
 {
@@ -25,7 +26,6 @@ class TicketingController extends Controller
 
         $booking = Booking::findOrFail($request->booking_id);
 
-        // Cek apakah tiket untuk kode booking ini sudah dibuat
         $existingTicket = Ticketing::where('code_booking', $booking->order_id)->first();
         if ($existingTicket) {
             return response()->json([
@@ -34,7 +34,6 @@ class TicketingController extends Controller
             ], 422);
         }
 
-        // Cek apakah jeep memang dimiliki oleh driver yang dipilih
         $jeep = Jeep::findOrFail($request->jeep_id);
         if ($jeep->driver_id != $request->driver_id) {
             return response()->json([
@@ -43,7 +42,6 @@ class TicketingController extends Controller
             ], 422);
         }
 
-        // Buat tiket
         $ticket = Ticketing::create([
             'code_booking' => $booking->order_id,
             'nama_pemesan' => $booking->customer_name,
@@ -52,6 +50,20 @@ class TicketingController extends Controller
             'driver_id' => $request->driver_id,
             'jeep_id' => $request->jeep_id,
             'booking_id' => $booking->booking_id,
+        ]);
+
+        // Simpan histori pencetakan tiket
+        HistoryTicketing::create([
+            'ticketing_id' => $ticket->id,
+            'code_booking' => $ticket->code_booking,
+            'nama_pemesan' => $ticket->nama_pemesan,
+            'no_handphone' => $ticket->no_handphone,
+            'email' => $ticket->email,
+            'driver_id' => $ticket->driver_id,
+            'jeep_id' => $ticket->jeep_id,
+            'booking_id' => $ticket->booking_id,
+            'activity' => 'Tiket dicetak',
+            'changed_by' => optional(\Illuminate\Support\Facades\Auth::user())->id, // opsional, sesuaikan dengan sistem login kamu
         ]);
 
         return response()->json([
