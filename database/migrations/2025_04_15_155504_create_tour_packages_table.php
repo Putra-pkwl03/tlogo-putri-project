@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('package_name', 100)->nullable(false);
             $table->string('slug', 50)->nullable(false);
-            $table->text('description')->nullable();
+            $table->text('destination')->nullable();
             $table->integer('price')->nullable(false);
+            $table->string('image');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
