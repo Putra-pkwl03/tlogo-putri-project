@@ -18,6 +18,10 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ExpeditureController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\RekapPresensiController;
+use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\HistoryTicketingController;
+use App\Http\Controllers\SalaryPreviewController;
+
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
