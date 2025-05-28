@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('ticketing_id')->nullable();
             $table->string('nama');
             $table->string('role');
+            $table->date('payment_date')->nullable()->before('status');
             $table->enum('status', ['belum', 'diterima'])->default('belum');
             $table->timestamps();
 

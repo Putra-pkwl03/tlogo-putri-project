@@ -73,6 +73,7 @@ Route::prefix('salary')->group(function () {
     Route::post('/previews/generate', [SalaryPreviewController::class, 'generatePreviews']); 
     Route::get('/preview/{userId}/{role}', [SalaryController::class, 'previewSalary']);
     Route::post('/store/{userId}/{role}', [SalaryController::class, 'storeSalary']);
+    Route::get('/total/{userId}/{role}', [SalaryController::class, 'calculateTotalSalaryByUser']);
     Route::get('/all', [SalaryController::class, 'getAllSalaries']);
 });
 

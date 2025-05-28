@@ -14,6 +14,7 @@ class SalaryPreview extends Model
         'ticketing_id',
         'nama',
         'role',
+        'payment_date',
         'status',
     ];
 

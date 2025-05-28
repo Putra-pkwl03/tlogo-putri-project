@@ -15,9 +15,9 @@ class SalaryController extends Controller
 
     public function previewSalary($userId, $role)
     {
-        if ($role === 'fo') {
+        if ($role === 'fron office') {
             // Cek apakah hari ini tanggal 1
-            if (Carbon::now()->day !== 26) {
+            if (Carbon::now()->day !== 1) {
                 return response()->json([
                     'message' => 'Gaji hanya bisa dilihat pada tanggal 1 setiap bulan.',
                     'data' => null,
@@ -46,6 +46,7 @@ class SalaryController extends Controller
                         'role' => $user->role,
                         'salary' => 2000000,
                         'gaji_bulan_ini' => 'Rp 2.000.000',
+                        'payment_date' => $preview?->payment_date ?? null,
                         'status' => $preview?->status ?? 'belum',
                     ],
                     'total_fo_share' => 2000000,
@@ -211,27 +212,9 @@ class SalaryController extends Controller
 
     public function storeSalary(Request $request, $userId, $role)
 {
-    $preview = $this->previewSalary($userId, $role);
-    $decoded = json_decode($preview->getContent(), true);
-    $data = $decoded['data'] ?? [];
+    $data = $request->input('salaries');
 
-    // Sesuaikan key agar sesuai dengan struktur yang dibutuhkan storeSalary
-    $data = array_map(function ($item) use ($role) {
-        return [
-            'ticketing_id' => $item['ticketing_id'] ?? null,
-            'nama' => $role === 'driver' ? ($item['driver_name'] ?? '-') : ($item['owner_name'] ?? '-'),
-            'no_lambung' => $item['no_lambung'] ?? '-',
-            'kas' => $item['package']['kas'] ?? 0,
-            'operasional' => $item['package']['operasional'] ?? 0,
-            'salarie' => $role === 'driver' ? ($item['driver_share'] ?? 0) : ($item['owner_share'] ?? 0),
-            'total_salary' => $role === 'driver' ? ($item['driver_share'] ?? 0) : ($item['owner_share'] ?? 0),
-            'payment_date' => now()->toDateString(),
-        ];
-    }, $data);
-
-
-
-    if (!in_array($role, ['driver', 'owner', 'fo'])) {
+    if (!in_array($role, ['driver', 'owner', 'fron office'])) {
         return response()->json(['message' => 'Role tidak valid.'], 400);
     }
 
@@ -241,7 +224,50 @@ class SalaryController extends Controller
 
     $savedCount = 0;
 
-    if (in_array($role, ['driver', 'owner'])) {
+    if ($role === 'owner') {
+        // Group dan jumlahkan per owner_id (anggap $userId == owner_id)
+        $ownerTotal = 0;
+        $ownerData = null;
+
+        foreach ($data as $salary) {
+            // pastikan data lengkap
+            if (empty($salary['salarie'])) continue;
+
+            // simpan data owner (ambil dari first item)
+            if (!$ownerData) {
+                $ownerData = [
+                    'nama' => $salary['nama'] ?? null,
+                    'no_lambung' => $salary['no_lambung'] ?? null,
+                    'kas' => $salary['kas'] ?? 0,
+                    'operasional' => $salary['operasional'] ?? 0,
+                    'payment_date' => $salary['payment_date'] ?? date('Y-m-d'),
+                ];
+            }
+            $ownerTotal += $salary['salarie'];
+        }
+
+        if ($ownerData && $ownerTotal > 0) {
+            // cek duplikat berdasarkan user_id dan role saja (karena tidak pakai ticketing_id)
+            $existing = Salary::where('user_id', $userId)->where('role', $role)->first();
+            if (!$existing) {
+                Salary::create([
+                    'user_id' => $userId,
+                    'ticketing_id' => null,
+                    'nama' => $ownerData['nama'],
+                    'role' => $role,
+                    'no_lambung' => $ownerData['no_lambung'],
+                    'kas' => $ownerData['kas'],
+                    'operasional' => $ownerData['operasional'],
+                    'salarie' => $ownerTotal,
+                    'total_salary' => $ownerTotal,
+                    'payment_date' => $ownerData['payment_date'],
+                    'status' => 'Diterima',
+                ]);
+                $savedCount++;
+            }
+        }
+    } else {
+        // Untuk driver dan fron office simpan per tiket
         foreach ($data as $salary) {
             $ticketingId = $salary['ticketing_id'] ?? null;
             $nama = $salary['nama'] ?? null;
@@ -251,16 +277,16 @@ class SalaryController extends Controller
             $salarie = $salary['salarie'] ?? null;
             $totalSalary = $salary['total_salary'] ?? null;
             $paymentDate = $salary['payment_date'] ?? null;
-    
-            if (!$ticketingId || !$salarie) continue;
-    
+
+            if ($role !== 'fron office' && !$ticketingId) continue;
+            if (!$salarie) continue;
+
             $existing = Salary::where('ticketing_id', $ticketingId)
                 ->where('user_id', $userId)
-                ->where('role', $role)
                 ->first();
-    
+
             if ($existing) continue;
-    
+
             Salary::create([
                 'user_id' => $userId,
                 'ticketing_id' => $ticketingId,
@@ -274,11 +300,10 @@ class SalaryController extends Controller
                 'payment_date' => $paymentDate,
                 'status' => 'Diterima',
             ]);
-    
+
             $savedCount++;
         }
     }
-    
 
     return response()->json([
         'message' => "$savedCount data gaji berhasil disimpan.",
@@ -305,6 +330,46 @@ public function getAllSalaries(Request $request)
     return response()->json([
         'message' => 'Data gaji berhasil diambil.',
         'data' => $salaries
+    ]);
+}
+
+
+public function calculateTotalSalaryByUser($userId, $role)
+{
+    if (!in_array($role, ['driver', 'owner'])) {
+        return response()->json(['message' => 'Role tidak valid.'], 400);
+    }
+
+    // Ambil semua data gaji yang diterima
+    $salaries = Salary::where('user_id', $userId)
+        ->where('role', $role)
+        ->where('status', 'Diterima')
+        ->orderBy('payment_date', 'desc')
+        ->get();
+
+    // Hitung total gaji
+    $totalSalary = $salaries->sum('salarie');
+
+    // Ambil tanggal terakhir gajian jika ada
+    $latestPaymentDate = $salaries->first()?->payment_date;
+
+    // Ambil data user
+    $user = User::find($userId);
+
+    if (!$user) {
+        return response()->json([
+            'message' => 'User tidak ditemukan.',
+            'data' => null,
+        ], 404);
+    }
+
+    return response()->json([
+        'message' => "Total gaji $role dengan status 'Diterima' berhasil dihitung.",
+        'user_id' => $userId,
+        'nama' => $user->name,
+        'role' => $role,
+        'tanggal' => $latestPaymentDate,
+        'total_salary' => $totalSalary,
     ]);
 }
 }
