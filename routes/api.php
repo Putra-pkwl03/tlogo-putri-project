@@ -18,8 +18,12 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ExpeditureController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\RekapPresensiController;
+
+use App\Http\Controllers\VoucherController;
+
 use App\Http\Controllers\HistoryTicketingController;
 use App\Http\Controllers\SalaryPreviewController;
+
 
 // AUTH GROUP
 Route::prefix('auth')->group(function () {
@@ -94,7 +98,7 @@ Route::get('/bookings', [BookingController::class, 'index']); //untuk menampilka
 Route::post('/bookings', [BookingController::class, 'store']);
 Route::get('/bookings/{id}', [BookingController::class, 'show']);
 Route::put('/bookings/{id}', [BookingController::class, 'update']);
-// Route::delete('/bookings/{id}', [BookingController::class, 'destroy']);
+Route::delete('/bookings/{order_id}', [BookingController::class, 'destroy']);
 
 Route::post('/midtrans-notification', [MidtransNotificationController::class, 'midtransNotif']); // midtrans notification (webhook)
 Route::get('/orders/{order_id}/remaining-payment', [PaymentController::class,'getRemainingPaymentInfo']); // remaining payment info pembayaran ke 2
@@ -105,6 +109,12 @@ Route::get('/payment/orders/{booking_id}', [PaymentController::class, 'show']);
 
 Route::get('/packages', [PackageController::class, 'index']);
 Route::get('/packages/{slug}', [PackageController::class, 'show']);
+
+Route::get('/vouchers', [VoucherController::class, 'index']);
+Route::post('/vouchers', [VoucherController::class, 'store']);
+Route::get('/vouchers/{id}', [VoucherController::class, 'show']);
+Route::put('/vouchers/{id}', [VoucherController::class, 'update']);
+Route::delete('/vouchers/{id}', [VoucherController::class, 'destroy']); 
 
 // GENERATE CONTENT
 Route::prefix('content-generate')->group(function () {
