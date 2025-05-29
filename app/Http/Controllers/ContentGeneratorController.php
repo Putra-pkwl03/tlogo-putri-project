@@ -213,12 +213,13 @@ class ContentGeneratorController extends Controller
         }
 
         $validatedData = $request->validate([
-            'judul' => 'sometimes|string|max:255',
-            'pemilik' => 'sometimes|string|max:100',
-            'kategori' => 'sometimes|string',
-            'isi_konten' => 'sometimes|string',
-            'status' => 'sometimes|string|max:255',
-            'gambar' => 'sometimes|string|max:255',
+            'judul' => 'nullable|sometimes|string|max:255',
+            'pemilik' => 'nullable|sometimes|string|max:100',
+            'kategori' => 'nullable|sometimes|string',
+            'isi_konten' => 'nullable|sometimes|string',
+            'status' => 'nullable|sometimes|string|max:255',
+            'gambar' => 'nullable|sometimes|string|max:255',
+            'caption_gambar' => 'nullable|sometimes|string|max:255',
         ]);
 
         $artikel->update($validatedData);

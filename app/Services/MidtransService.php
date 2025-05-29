@@ -20,8 +20,6 @@ class MidtransService
     {
         $serverKey = config('midtrans.server_key');
 
-        Log::info('Midtrans Notification Payload:', $payload);
-
         $orderId = $payload['order_id'];
         $statusCode = $payload['status_code'];
         $grossAmount = $payload['gross_amount'];

@@ -44,6 +44,7 @@ class SalaryPreviewController extends Controller
                     'ticketing_id' => $ticket->id,
                     'nama' => $user->name,
                     'role' => $user->role,
+                    'payment_date' => now()->toDateString(),
                     'status' => 'belum',
                 ]);
 
@@ -63,6 +64,7 @@ class SalaryPreviewController extends Controller
                 'ticketing_id' => null,
                 'nama' => $fo->name,
                 'role' => $fo->role,
+                'payment_date' => now()->toDateString(),
                 'status' => 'belum',
             ]);
 
