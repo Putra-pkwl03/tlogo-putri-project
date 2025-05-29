@@ -131,6 +131,7 @@ Route::prefix('dailyreports')->group(function () {
 // EXPENDITURE REPORT GENERATE
 Route::prefix('expenditures')->group(function () {
     Route::get('/all', [ExpeditureController::class, 'index']);
+    Route::get('/{id}', [ExpeditureController::class, 'show']);
     Route::post('/generate', [ExpeditureController::class, 'storeformsalarie']);
     Route::post('/create', [ExpeditureController::class, 'store']);
     Route::put('/update/{id}', [ExpeditureController::class, 'update']);
