@@ -159,6 +159,7 @@ Route::prefix('reports')->group(function () {
     Route::post('/generate', [ReportController::class, 'generateAndStore']);
     Route::get('/triwulan', [ReportController::class, 'rekapMingguan']);
     Route::get('/tahun', [ReportController::class, 'rekapPerBulan']);
+    Route::get('/statistik', [ReportController::class, 'statistik']);
 });
 
 // REKAP PRESENSI

@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use App\Models\Report;
 use App\Models\ExpenditureReport;
 use App\Models\DailyReport;
+use App\Models\IncomeReport;
 
 class ReportController extends Controller
 {
@@ -105,6 +106,49 @@ class ReportController extends Controller
             ->get();
 
         return response()->json($data);
+    }
+
+    public function statistik()
+    {
+        // 1. Pemasukan per bulan
+        $pemasukan = DB::table('income_report')
+            ->select(DB::raw("DATE_FORMAT(booking_date, '%Y-%m') as bulan"), DB::raw("SUM(income) as total_pemasukan"))
+            ->groupBy('bulan');
+
+        // 2. Pengeluaran per bulan
+        $pengeluaran = DB::table('expenditure_report')
+            ->select(DB::raw("DATE_FORMAT(issue_date, '%Y-%m') as bulan"), DB::raw("SUM(amount) as total_pengeluaran"))
+            ->groupBy('bulan');
+
+        // 3. Kas bersih terakhir per bulan dari laporan
+        $laporan_sub = DB::table('report')
+            ->select(DB::raw("MAX(report_date) as tanggal_terakhir"))
+            ->groupBy(DB::raw("DATE_FORMAT(report_date, '%Y-%m')"));
+
+        $laporan = DB::table('report')
+            ->joinSub($laporan_sub, 'terakhir', function ($join) {
+                $join->on('report.report_date', '=', 'terakhir.tanggal_terakhir');
+            })
+            ->select(DB::raw("DATE_FORMAT(report.report_date, '%Y-%m') as bulan"), 'net_cash');
+
+        // Gabungkan semua data berdasarkan bulan
+        $data = DB::table(DB::raw("({$pemasukan->toSql()}) as pemasukan"))
+            ->mergeBindings($pemasukan)
+            ->leftJoinSub($pengeluaran, 'pengeluaran', 'pemasukan.bulan', '=', 'pengeluaran.bulan')
+            ->leftJoinSub($laporan, 'laporan', 'pemasukan.bulan', '=', 'laporan.bulan')
+            ->select(
+                'pemasukan.bulan',
+                'total_pemasukan',
+                'total_pengeluaran',
+                'net_cash'
+            )
+            ->orderBy('pemasukan.bulan', 'desc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
     }
 
 
