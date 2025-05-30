@@ -140,6 +140,7 @@ Route::prefix('dailyreports')->group(function () {
 // EXPENDITURE REPORT GENERATE
 Route::prefix('expenditures')->group(function () {
     Route::get('/all', [ExpeditureController::class, 'index']);
+    Route::get('/{id}', [ExpeditureController::class, 'show']);
     Route::post('/generate', [ExpeditureController::class, 'storeformsalarie']);
     Route::post('/create', [ExpeditureController::class, 'store']);
     Route::put('/update/{id}', [ExpeditureController::class, 'update']);
@@ -158,6 +159,7 @@ Route::prefix('reports')->group(function () {
     Route::post('/generate', [ReportController::class, 'generateAndStore']);
     Route::get('/triwulan', [ReportController::class, 'rekapMingguan']);
     Route::get('/tahun', [ReportController::class, 'rekapPerBulan']);
+    Route::get('/statistik', [ReportController::class, 'statistik']);
 });
 
 // REKAP PRESENSI

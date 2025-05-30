@@ -89,6 +89,14 @@ class ExpeditureController extends Controller
         ]);
     }
 
+    public function show($id)
+    {
+        $expenditure = ExpenditureReport::findOrFail($id);
+    
+        return response()->json([
+            'expenditure' => $expenditure,
+        ]);
+    }
 
      
     public function update(Request $request, string $expenditure_id)
