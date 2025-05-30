@@ -104,9 +104,18 @@ class ContentGeneratorController extends Controller
         }
         
         $client = OpenAI::client(env('OPENAI_API_KEY'));
+        
+        $promptquery = "Periksa apakah konten berikut memiliki makna atau topik yang selaras dengan query berikut: \"$query\". Jika konten tersebut tidak memiliki makna yang sesuai atau tidak relevan dengan query \"$query\", maka buat ulang kontennya dari awal, dengan isi yang benar-benar relevan dan sesuai dengan topik query tersebut dan juga kalimat yang lebih banyak. Konten: \n\n" . $allContent;
+
+        $responsequery = $client->chat()->create([
+            'model' => 'gpt-3.5-turbo',
+            'messages' => [['role' => 'user', 'content' => $promptquery]],
+        ]);
+
+        $fixcontent = $responsequery['choices'][0]['message']['content'];
 
         // 3. Optimasi dengan OpenAI
-        $promptMain = "Terjemahkan teks berikut ke dalam Bahasa Indonesia dengan gaya yang baik tanpa mengurangi jumlah kata. Jika jumlah kata kurang dari 150, kamu bisa tambahkan kata-kata yang sangat banyak dengan topik yang sama agar kata-kata konten yang di optimalkan lebih banyak. Lalu, buat kesimpulan di kalimat terakhir tanpa menyebutkan kalimat itu kesimpulan.\n\n" . $allContent;
+        $promptMain = "Terjemahkan dan kembangkan teks berikut ke dalam Bahasa Indonesia dengan gaya bahasa yang baik, menarik, dan mudah dipahami. Jangan hanya mempertahankan jumlah kata, tapi perluas konten secara signifikan agar menghasilkan banyak kalimat yang informatif dan relevan, tanpa mengulang-ulang isi. Tambahkan penjelasan tambahan, contoh, manfaat, dan rincian yang masih terkait erat dengan topik utama untuk memperkaya konten secara keseluruhan. Jika teks awal memiliki kurang dari 150 kata, pastikan hasil akhirnya menjadi sangat panjang, mendalam, dan kaya informasi. Gunakan kalimat-kalimat yang bervariasi dan mengalir alami. Tutup dengan kalimat yang menyampaikan inti dari keseluruhan konten, tanpa menyebut bahwa itu adalah kesimpulan. Konten: \n\n" . $fixcontent;
         $responseMain = $client->chat()->create([
             'model' => 'gpt-3.5-turbo',
             'messages' => [['role' => 'user', 'content' => $promptMain]],
