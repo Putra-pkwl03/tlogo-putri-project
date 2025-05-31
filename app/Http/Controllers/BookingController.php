@@ -21,7 +21,7 @@ class BookingController extends Controller
      */
     public function index()
     {
-        $orders = Booking::with(['package:id,package_name,description,price'])->get();
+        $orders = Booking::with(['package:id,package_name,destination,price'])->get();
         return response()->json($orders, 200);
     }
 
@@ -45,7 +45,7 @@ class BookingController extends Controller
      */
     public function show($id)
     {
-        $data = Booking::with(['package:id,package_name,description,price'])->find($id);
+        $data = Booking::with(['package:id,package_name,destination,price'])->find($id);
 
         if(!$data){
             return response()->json([
