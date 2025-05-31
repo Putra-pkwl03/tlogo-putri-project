@@ -27,6 +27,7 @@ class IncomeController extends Controller
     public function calculate()
     {
         $dailys = DailyReport::all();
+        $incomereport = [];
          foreach ($dailys as $daily) {
             $expenditure = ExpenditureReport::where('salaries_id', $daily->salaries_id)->first();
             $salary = Salaries::where('salaries_id', $daily->salaries_id)->first();

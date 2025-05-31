@@ -17,9 +17,9 @@ return new class extends Migration
             $table->unsignedBigInteger('ticketing_id')->unique(); // tambahkan unique() di sini
             $table->unsignedBigInteger('expenditure_id');
             $table->datetime('booking_date')->nullable();
-            $table->decimal('income', 10, 2)->nullable();
-            $table->decimal('expediture', 10, 2)->nullable();
-            $table->decimal('cash', 10, 2)->nullable();
+            $table->decimal('income', 25, 2)->nullable();
+            $table->decimal('expediture', 25, 2)->nullable();
+            $table->decimal('cash', 25, 2)->nullable();
             $table->timestamps();
         
             $table->foreign('booking_id')->references('booking_id')->on('bookings')->onDelete('cascade');

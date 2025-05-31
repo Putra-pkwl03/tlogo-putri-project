@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('report', function (Blueprint $table) {
             $table->id('report_id');
             $table->datetime('report_date')->unique();  // <-- unique di sini
-            $table->decimal('cash', 10, 2);
-            $table->decimal('operational', 10, 2);
-            $table->decimal('expenditure', 10, 2);
-            $table->decimal('net_cash', 10, 2);
-            $table->decimal('clean_operations', 10, 2);
+            $table->decimal('cash', 25, 2);
+            $table->decimal('operational', 25, 2);
+            $table->decimal('expenditure', 25, 2);
+            $table->decimal('net_cash', 25, 2);
+            $table->decimal('clean_operations', 25, 2);
             $table->integer('jeep_amount');
             $table->timestamps();
         
