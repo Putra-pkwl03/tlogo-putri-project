@@ -10,6 +10,7 @@ use Database\Seeders\TourPackageSeeder;
 use Database\Seeders\BookingSeeder;
 use Database\Seeders\PaymentTransactionSeeder;
 use Database\Seeders\VoucherSeeder;
+use Database\Seeders\ArtikelSeeder;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -22,7 +23,8 @@ class DatabaseSeeder extends Seeder
             TourPackageSeeder::class,
             BookingSeeder::class,
             PaymentTransactionSeeder::class,
-            VoucherSeeder::class
+            VoucherSeeder::class,
+            ArtikelSeeder::class
         ]);
     }
 }
