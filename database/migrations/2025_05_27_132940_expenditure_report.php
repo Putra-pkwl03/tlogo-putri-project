@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('expenditure_id');
             $table->unsignedBigInteger('salaries_id')->nullable()->unique(); // UNIK di sini
             $table->dateTime('issue_date');
-            $table->decimal('amount', 10, 2);
+            $table->decimal('amount', 25, 2);
             $table->text('information')->nullable();
             $table->string('action', 255)->nullable();
             $table->timestamps();

@@ -20,14 +20,14 @@ return new class extends Migration
             $table->text('information')->nullable();
             $table->string('code', 100)->nullable();
             $table->decimal('marketing', 10, 2)->nullable();
-            $table->decimal('cash', 10, 2);
-            $table->decimal('oop', 10, 2);
-            $table->decimal('pay_driver', 10, 2);
-            $table->decimal('total_cash', 10, 2);
+            $table->decimal('cash', 25, 2);
+            $table->decimal('oop', 25, 2);
+            $table->decimal('pay_driver', 25, 2);
+            $table->decimal('total_cash', 25, 2);
             $table->integer('amount');
-            $table->decimal('price', 10, 2);
-            $table->decimal('driver_accept', 10, 2);
-            $table->decimal('paying_guest', 10, 2);
+            $table->decimal('price', 25, 2);
+            $table->decimal('driver_accept', 25, 2);
+            $table->decimal('paying_guest', 25, 2);
             $table->datetime('arrival_time');
             $table->timestamps();
     
