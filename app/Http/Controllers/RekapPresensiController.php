@@ -8,13 +8,31 @@ use Illuminate\Http\Request;
 
 class RekapPresensiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        {
-            $rekapPresensi = RekapPresensi::all();
-            return response()->json($rekapPresensi);
+        $bulan = $request->query('bulan', now()->format('m'));
+        $tahun = $request->query('tahun', now()->format('Y'));
+
+        $rekapPresensi = RekapPresensi::where('bulan', $bulan)
+                                        ->where('tahun', $tahun)
+                                        ->get();
+
+
+        if ($rekapPresensi->isEmpty()) {
+            return response()->json([
+                'status' => 'not_found',
+                'message' => "Data tidak ditemukan untuk bulan $bulan tahun $tahun.",
+                'data' => []
+            ], 404);
         }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => "Data berhasil ditemukan untuk bulan $bulan tahun $tahun.",
+            'data' => $rekapPresensi
+        ]);
     }
+
 
     public function calculatePresensi()
     {
