@@ -36,17 +36,8 @@ class RekapPresensiController extends Controller
 
     public function calculatePresensi()
     {
-        $now = Carbon::now();
-        $bulan = $now->month;
-        $tahun = $now->year;
-
-        // Ambil semua ticketings yang berkaitan dengan bookings bulan ini
-        $ticketings = DB::table('ticketings')
-            ->join('bookings', 'ticketings.booking_id', '=', 'bookings.booking_id')
-            ->whereMonth('bookings.tour_date', $bulan)
-            ->whereYear('bookings.tour_date', $tahun)
-            ->select('ticketings.jeep_id')
-            ->get();
+        // Ambil semua ticketing tanpa filter bulan/tahun
+        $ticketings = DB::table('ticketings')->get();
 
         $presensi = [];
 
@@ -55,28 +46,44 @@ class RekapPresensiController extends Controller
             $jeep = DB::table('jeeps')->where('jeep_id', $ticketing->jeep_id)->first();
             if (!$jeep || !$jeep->driver_id) continue;
 
-            // Hitung jumlah kehadiran per driver_id
             $driver_id = $jeep->driver_id;
-            if (!isset($presensi[$driver_id])) {
-                $presensi[$driver_id] = 1;
+
+            // Ambil bulan & tahun dari ticketing.created_at (atau bisa ganti dengan bookings.tour_date jika relevan)
+            $tanggal = Carbon::parse($ticketing->created_at);
+            $bulan = $tanggal->month;
+            $tahun = $tanggal->year;
+
+            // Gunakan kombinasi unik driver_id + bulan + tahun sebagai key
+            $key = $driver_id . '-' . $bulan . '-' . $tahun;
+
+            if (!isset($presensi[$key])) {
+                $presensi[$key] = [
+                    'driver_id' => $driver_id,
+                    'bulan' => $bulan,
+                    'tahun' => $tahun,
+                    'jumlah_kehadiran' => 1,
+                ];
             } else {
-                $presensi[$driver_id]++;
+                $presensi[$key]['jumlah_kehadiran']++;
             }
         }
 
-        return ['presensi' => $presensi, 'bulan' => $bulan, 'tahun' => $tahun];
+        return array_values($presensi); // ubah jadi array numerik
     }
+
 
     public function rekapPresensi()
     {
-        $data = $this->calculatePresensi();
-        $presensi = $data['presensi'];
-        $bulan = $data['bulan'];
-        $tahun = $data['tahun'];
-
-        foreach ($presensi as $driver_id => $jumlah_kehadiran) {
+        $dataPresensi = $this->calculatePresensi();
+    
+        foreach ($dataPresensi as $data) {
+            $driver_id = $data['driver_id'];
+            $bulan = $data['bulan'];
+            $tahun = $data['tahun'];
+            $jumlah_kehadiran = $data['jumlah_kehadiran'];
+        
             $user = DB::table('users')->where('id', $driver_id)->first();
-
+        
             if ($user) {
                 DB::table('rekap_presensi')->updateOrInsert(
                     [
@@ -96,9 +103,10 @@ class RekapPresensiController extends Controller
                 );
             }
         }
-
-        return response()->json(['message' => 'Rekap presensi bulanan berhasil disimpan.']);
+    
+        return response()->json(['message' => 'Rekap presensi berhasil diproses dan disimpan.']);
     }
+
 
 
 }

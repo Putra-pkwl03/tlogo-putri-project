@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ExpenditureReport;
-use App\Models\Salaries;
+use App\Models\Salary;
 
 class ExpeditureController extends Controller
 {
@@ -85,7 +85,7 @@ class ExpeditureController extends Controller
 
     public function calculate()
     {
-        $salaries = Salaries::all();
+        $salaries = Salary::all();
         $expenditureReports = [];
     
         foreach ($salaries as $salary) {

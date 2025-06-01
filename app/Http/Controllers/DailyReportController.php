@@ -8,7 +8,7 @@ use App\Models\TourPackage;
 use App\Models\Ticketing;
 use App\Models\Jeep;
 use App\Models\DailyReport;
-use App\Models\Salaries;
+use App\Models\Salary;
 
 class DailyReportController extends Controller
 {
@@ -59,7 +59,7 @@ class DailyReportController extends Controller
             50000 => 'OP',
         ];
 
-        $salaries = Salaries::with([
+        $salaries = Salary::with([
             'ticketing.booking.package',
             'ticketing.jeep'
         ])->where('role', 'Driver')->get();
