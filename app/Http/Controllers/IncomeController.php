@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\DailyReport;
 use App\Models\IncomeReport;
 use App\Models\ExpenditureReport;
-use App\Models\Salaries;
+use App\Models\Salary;
 
 class IncomeController extends Controller
 {
@@ -28,13 +28,24 @@ class IncomeController extends Controller
     {
         $dailys = DailyReport::all();
         $incomereport = [];
-         foreach ($dailys as $daily) {
+    
+        foreach ($dailys as $daily) {
+            \Log::info('Checking daily report', ['salaries_id' => $daily->salaries_id]);
+        
             $expenditure = ExpenditureReport::where('salaries_id', $daily->salaries_id)->first();
-            $salary = Salaries::where('salaries_id', $daily->salaries_id)->first();
+            $salary = Salary::where('salaries_id', $daily->salaries_id)->first();
+        
+            if (!$expenditure) {
+                \Log::info('Expenditure not found', ['salaries_id' => $daily->salaries_id]);
+            }
+            if (!$salary) {
+                \Log::info('Salary not found', ['salaries_id' => $daily->salaries_id]);
+            }
         
             if (!$expenditure || !$salary) {
                 continue;
             }
+        
             $incomereport[] = [
                 'booking_id' => $daily->booking_id,
                 'ticketing_id' => $salary->ticketing_id,
@@ -44,23 +55,28 @@ class IncomeController extends Controller
                 'expediture' => $daily->driver_accept,
                 'cash' => $daily->total_cash,
             ];
-         }
+        }
+    
         return $incomereport;
     }
+
         
     public function store()
-    {
+    {   
         $incomereport = $this->calculate();
+
+        \Log::info('Income Report Data:', $incomereport); // <--- Tambah ini
+
         $savedReports = [];
         foreach ($incomereport as $daily) {
-            // Cek unik ticketing_id
             if (!IncomeReport::where('ticketing_id', $daily['ticketing_id'])->exists()) {
                 $savedReports[] = IncomeReport::create($daily);
             }
         }
-         return response()->json([
-             'message' => 'Laporan berhasil dibuat.',
-             'data'    => $savedReports
-         ]);
+
+        return response()->json([
+            'message' => 'Laporan berhasil dibuat.',
+            'data'    => $savedReports
+        ]);
     }
 }
