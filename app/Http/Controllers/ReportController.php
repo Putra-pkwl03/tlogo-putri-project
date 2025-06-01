@@ -226,30 +226,35 @@ class ReportController extends Controller
     }
 
 
-    public function statistik()
+    public function statistik(Request $request)
     {
-        // 1. Pemasukan per bulan
+        $tahun = $request->query('tahun', now()->year);
+    
+        // Pemasukan per bulan
         $pemasukan = DB::table('income_report')
             ->select(DB::raw("DATE_FORMAT(booking_date, '%Y-%m') as bulan"), DB::raw("SUM(income) as total_pemasukan"))
+            ->whereYear('booking_date', $tahun)
             ->groupBy('bulan');
-
-        // 2. Pengeluaran per bulan
+    
+        // Pengeluaran per bulan
         $pengeluaran = DB::table('expenditure_report')
             ->select(DB::raw("DATE_FORMAT(issue_date, '%Y-%m') as bulan"), DB::raw("SUM(amount) as total_pengeluaran"))
+            ->whereYear('issue_date', $tahun)
             ->groupBy('bulan');
-
-        // 3. Kas bersih terakhir per bulan dari laporan
+    
+        // Kas bersih terakhir per bulan dari laporan
         $laporan_sub = DB::table('report')
+            ->whereYear('report_date', $tahun)
             ->select(DB::raw("MAX(report_date) as tanggal_terakhir"))
             ->groupBy(DB::raw("DATE_FORMAT(report_date, '%Y-%m')"));
-
+    
         $laporan = DB::table('report')
             ->joinSub($laporan_sub, 'terakhir', function ($join) {
                 $join->on('report.report_date', '=', 'terakhir.tanggal_terakhir');
             })
             ->select(DB::raw("DATE_FORMAT(report.report_date, '%Y-%m') as bulan"), 'net_cash');
-
-        // Gabungkan semua data berdasarkan bulan
+        
+        // Gabungkan data berdasarkan bulan
         $data = DB::table(DB::raw("({$pemasukan->toSql()}) as pemasukan"))
             ->mergeBindings($pemasukan)
             ->leftJoinSub($pengeluaran, 'pengeluaran', 'pemasukan.bulan', '=', 'pengeluaran.bulan')
@@ -262,12 +267,25 @@ class ReportController extends Controller
             )
             ->orderBy('pemasukan.bulan', 'desc')
             ->get();
-
+            
+        // Cek jika data kosong
+        if ($data->isEmpty()) {
+            return response()->json([
+                'status' => 'not_found',
+                'message' => "Data tidak ditemukan untuk tahun $tahun.",
+                'data' => []
+            ], 404);
+        }
+    
+        // Data ditemukan
         return response()->json([
             'status' => 'success',
+            'tahun' => $tahun,
+            'message' => "Data berhasil ditemukan untuk tahun $tahun.",
             'data' => $data
         ]);
     }
+
 
 
     /**
