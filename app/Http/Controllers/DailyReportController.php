@@ -12,11 +12,39 @@ use App\Models\Salaries;
 
 class DailyReportController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $dailyreport = DailyReport::all();
-        return response()->json($dailyreport);
+        $tanggal = $request->query('tanggal'); // contoh: ?tanggal=2025-05-30
+
+        // Validasi: jika tanggal tidak ada
+        if (!$tanggal) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Parameter tanggal wajib diisi.',
+                'data' => []
+            ], 400);
+        }
+
+        // Ambil data berdasarkan tanggal
+        $dailyreport = DailyReport::whereDate('arrival_time', $tanggal)->get();
+
+        // Jika data kosong
+        if ($dailyreport->isEmpty()) {
+            return response()->json([
+                'status' => 'not_found',
+                'message' => 'Data tidak ditemukan untuk tanggal yang diminta.',
+                'data' => []
+            ], 404);
+        }
+
+        // Jika data ditemukan
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data berhasil ditemukan.',
+            'data' => $dailyreport
+        ]);
     }
+
 
     // menghitung laporan harian
     public function calculate()
