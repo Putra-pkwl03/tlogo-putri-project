@@ -137,10 +137,13 @@ class BookingService
                 : null,
         ];
 
-        $pdf = PDF::loadView('pdf.payment_receipt', compact('order', 'transaction'));
+        // $pdf = PDF::loadView('pdf.payment_receipt', compact('order', 'transaction'));
 
         try {
-            Mail::to($order->customer_email)->send(new \App\Mail\PaymentReceiptMail($emailData, $pdf));
+            // Mail::to($order->customer_email)->send(new \App\Mail\PaymentReceiptMail($emailData));
+            Mail::to($order->customer_email)
+            ->later(now()->addSeconds(10), new \App\Mail\PaymentReceiptMail($emailData));
+
             Log::info("Email sent to " . $order->customer_email);
         } catch (\Exception $e) {
             Log::error("Email failed send to " . $order->customer_email . " with error: " . $e->getMessage());

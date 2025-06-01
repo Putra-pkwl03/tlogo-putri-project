@@ -11,7 +11,7 @@ use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class PaymentReceiptMail extends Mailable
+class PaymentReceiptMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -19,12 +19,12 @@ class PaymentReceiptMail extends Mailable
      * Create a new message instance.
      */
     public $emailData;
-    public $pdf;
+    // public $pdf;
 
-    public function __construct($emailData, $pdf)
+    public function __construct($emailData)
     {
         $this->emailData = $emailData;
-        $this->pdf = $pdf;
+        // $this->pdf = $pdf;
     }
 
     /**
@@ -56,11 +56,11 @@ class PaymentReceiptMail extends Mailable
      *
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
-    public function attachments(): array
-    {
-        return [
-            Attachment::fromData(fn () => $this->pdf->output(), 'bukti_pembayaran.pdf')
-                ->withMime('application/pdf'),
-        ];
-    }
+    // public function attachments(): array
+    // {
+    //     return [
+    //         Attachment::fromData(fn () => $this->pdf->output(), 'bukti_pembayaran.pdf')
+    //             ->withMime('application/pdf'),
+    //     ];
+    // }
 }
