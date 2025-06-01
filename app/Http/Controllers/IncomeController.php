@@ -13,13 +13,46 @@ class IncomeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        {
-            $incomereport = IncomeReport::all();
-            return response()->json($incomereport);
+        $tanggal = $request->query('tanggal'); // format: YYYY-MM-DD
+    
+        if ($tanggal) {
+            $incomereport = IncomeReport::whereDate('booking_date', $tanggal)->get();
+        
+            if ($incomereport->isEmpty()) {
+                return response()->json([
+                    'status' => 'not_found',
+                    'message' => "Data tidak ditemukan untuk tanggal $tanggal.",
+                    'income' => []
+                ], 404);
+            }
+        
+            return response()->json([
+                'status' => 'success',
+                'message' => "Data berhasil ditemukan untuk tanggal $tanggal.",
+                'income' => $incomereport
+            ]);
         }
+    
+        // Jika tidak ada parameter tanggal, ambil semua data
+        $incomereport = IncomeReport::all();
+    
+        if ($incomereport->isEmpty()) {
+            return response()->json([
+                'status' => 'not_found',
+                'message' => "Data tidak ditemukan.",
+                'income' => []
+            ], 404);
+        }
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => "Semua data berhasil ditampilkan.",
+            'income' => $incomereport
+        ]);
     }
+
 
     /**
      * Show the form for creating a new resource.

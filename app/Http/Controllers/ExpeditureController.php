@@ -11,13 +11,47 @@ class ExpeditureController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $tanggal = $request->query('tanggal'); // format: YYYY-MM-DD
+    
+        // Jika ada filter tanggal, ambil data berdasarkan tanggal
+        if ($tanggal) {
+            $expenditureReport = ExpenditureReport::whereDate('issue_date', $tanggal)->get();
+        
+            if ($expenditureReport->isEmpty()) {
+                return response()->json([
+                    'status' => 'not_found',
+                    'message' => "Data tidak ditemukan untuk tanggal $tanggal.",
+                    'expenditure' => []
+                ], 404);
+            }
+        
+            return response()->json([
+                'status' => 'success',
+                'message' => "Data berhasil ditemukan untuk tanggal $tanggal.",
+                'expenditure' => $expenditureReport
+            ]);
+        }
+    
+        // Jika tidak ada filter, ambil semua data
         $expenditureReport = ExpenditureReport::all();
+    
+        if ($expenditureReport->isEmpty()) {
+            return response()->json([
+                'status' => 'not_found',
+                'message' => "Data tidak ditemukan.",
+                'expenditure' => []
+            ], 404);
+        }
+    
         return response()->json([
-            'expenditure' => $expenditureReport,
+            'status' => 'success',
+            'message' => "Semua data berhasil ditampilkan.",
+            'expenditure' => $expenditureReport
         ]);
     }
+
 
     public function store(Request $request)
     {
