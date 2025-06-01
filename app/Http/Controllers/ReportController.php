@@ -14,99 +14,217 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil bulan dan tahun dari query string jika ada
-        $bulan = $request->query('bulan', Carbon::now()->month); // Default: bulan ini
-        $tahun = $request->query('tahun', Carbon::now()->year);  // Default: tahun ini
+        // Ambil bulan dan tahun dari request atau default ke bulan dan tahun sekarang
+        $bulan = $request->query('bulan', Carbon::now()->format('m'));
+        $tahun = $request->query('tahun', Carbon::now()->format('Y'));
 
-        // Filter berdasarkan bulan dan tahun
+        // Ambil data berdasarkan bulan dan tahun
         $rekapreport = Report::whereMonth('report_date', $bulan)
                              ->whereYear('report_date', $tahun)
                              ->get();
 
-        return response()->json($rekapreport);
+        // Jika data kosong, kirimkan pesan bahwa data tidak ditemukan
+        if ($rekapreport->isEmpty()) {
+            return response()->json([
+                'status' => 'not_found',
+                'message' => 'Data tidak ditemukan untuk bulan dan tahun yang diminta.',
+                'data' => []
+            ], 404);
+        }
+
+        // Jika data ditemukan, kirim data
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data berhasil ditemukan.',
+            'data' => $rekapreport
+        ]);
     }
+
 
     public function rekapMingguan(Request $request)
     {
-        $quarter = $request->input('quarter'); // 1, 2, 3, atau 4
+        $quarter = $request->input('quarter');
         $year = $request->input('year');
-    
-        // Validasi quarter dan year
+
         if (!in_array($quarter, [1, 2, 3, 4])) {
             return response()->json(['error' => 'Invalid quarter'], 400);
         }
         if (!$year || !is_numeric($year) || $year < 1900 || $year > 2100) {
             $year = Carbon::now()->year;
         }
-    
+
         $quarters = [
             1 => ['start' => 1, 'end' => 3],
             2 => ['start' => 4, 'end' => 6],
             3 => ['start' => 7, 'end' => 9],
             4 => ['start' => 10, 'end' => 12],
         ];
-    
+
         $startMonth = $quarters[$quarter]['start'];
         $endMonth = $quarters[$quarter]['end'];
-    
+
         $startDate = Carbon::create($year, $startMonth, 1)->startOfDay();
         $endDate = Carbon::create($year, $endMonth, 1)->endOfMonth()->endOfDay();
-    
-        // Debugging: cek tanggal start dan end
-        // \Log::info("Start date: $startDate, End date: $endDate");
-    
+
+        // Subquery net_cash terakhir per minggu
+        $latestNetCash = DB::table('report')
+            ->select(
+                DB::raw('YEAR(report_date) as tahun'),
+                DB::raw('MONTH(report_date) as bulan'),
+                DB::raw('WEEK(report_date, 1) - WEEK(DATE_FORMAT(report_date, "%Y-%m-01"), 1) + 1 as minggu_ke'),
+                'net_cash',
+                'report_date'
+            )
+            ->whereBetween('report_date', [$startDate, $endDate])
+            ->orderBy('report_date', 'desc');
+
+        $latestPerWeek = DB::table(DB::raw("({$latestNetCash->toSql()}) as sub"))
+            ->mergeBindings($latestNetCash)
+            ->groupBy('tahun', 'bulan', 'minggu_ke')
+            ->select(
+                'tahun',
+                'bulan',
+                'minggu_ke',
+                DB::raw('MAX(net_cash) as net_cash_terakhir')
+            );
+
+        // Agregasi mingguan
         $data = DB::table('report')
             ->whereBetween('report_date', [$startDate, $endDate])
             ->select(
-                DB::raw('WEEK(report_date, 1) - WEEK(DATE_FORMAT(report_date, "%Y-%m-01"), 1) + 1 as minggu_ke'),
                 DB::raw('YEAR(report_date) as tahun'),
                 DB::raw('MONTH(report_date) as bulan'),
+                DB::raw('WEEK(report_date, 1) - WEEK(DATE_FORMAT(report_date, "%Y-%m-01"), 1) + 1 as minggu_ke'),
                 DB::raw('SUM(cash) as total_cash'),
                 DB::raw('SUM(operational) as total_operational'),
                 DB::raw('SUM(expenditure) as total_expenditure'),
-                DB::raw('SUM(net_cash) as total_net_cash'),
                 DB::raw('SUM(clean_operations) as total_clean_operations'),
                 DB::raw('SUM(jeep_amount) as total_jeep_amount')
             )
-            ->groupBy('tahun', 'bulan', 'minggu_ke')
-            ->orderBy('tahun')
-            ->orderBy('bulan')
-            ->orderBy('minggu_ke')
+            ->groupBy('tahun', 'bulan', 'minggu_ke');
+
+        // Gabungkan dan ambil hasil
+        $final = DB::table(DB::raw("({$data->toSql()}) as summary"))
+            ->mergeBindings($data)
+            ->leftJoinSub($latestPerWeek, 'latest', function ($join) {
+                $join->on('summary.tahun', '=', 'latest.tahun')
+                     ->on('summary.bulan', '=', 'latest.bulan')
+                     ->on('summary.minggu_ke', '=', 'latest.minggu_ke');
+            })
+            ->select(
+                'summary.tahun',
+                'summary.bulan',
+                'summary.minggu_ke',
+                'summary.total_cash',
+                'summary.total_operational',
+                'summary.total_expenditure',
+                'summary.total_clean_operations',
+                'summary.total_jeep_amount',
+                'latest.net_cash_terakhir as net_cash'
+            )
+            ->orderBy('summary.tahun')
+            ->orderBy('summary.bulan')
+            ->orderBy('summary.minggu_ke')
             ->get()
             ->map(function ($item) {
                 $item->minggu = 'Minggu ' . $item->minggu_ke;
                 unset($item->minggu_ke);
                 return $item;
             });
-        
-        return response()->json($data);
+
+        // Cek jika data kosong
+        if ($final->isEmpty()) {
+            return response()->json([
+                'status' => 'not_found',
+                'message' => 'Data tidak ditemukan untuk kuartal dan tahun yang diminta.',
+                'data' => []
+            ], 404);
+        }
+
+        // Jika data ada
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data mingguan berhasil ditemukan.',
+            'data' => $final
+        ]);
     }
+
 
 
     public function rekapPerBulan(Request $request)
     {
-        // Jika ada request tahun, gunakan itu. Kalau tidak, pakai tahun ini
         $tahun = $request->input('tahun', date('Y'));
-
-        $data = DB::table('report')
+    
+        // Subquery untuk net_cash terakhir tiap bulan
+        $latestNetCash = DB::table('report')
+            ->select(
+                DB::raw('YEAR(report_date) as tahun'),
+                DB::raw('MONTH(report_date) as bulan'),
+                'net_cash',
+                'report_date'
+            )
+            ->whereYear('report_date', $tahun)
+            ->orderBy('report_date', 'desc');
+            
+        $netCashPerBulan = DB::table(DB::raw("({$latestNetCash->toSql()}) as sub"))
+            ->mergeBindings($latestNetCash)
+            ->groupBy('tahun', 'bulan')
+            ->select(
+                'tahun',
+                'bulan',
+                DB::raw('MAX(net_cash) as net_cash_terakhir')
+            );
+        
+        // Agregasi data lainnya
+        $summary = DB::table('report')
             ->select(
                 DB::raw('YEAR(report_date) as tahun'),
                 DB::raw('MONTH(report_date) as bulan'),
                 DB::raw('SUM(cash) as total_cash'),
                 DB::raw('SUM(operational) as total_operational'),
                 DB::raw('SUM(expenditure) as total_expenditure'),
-                DB::raw('SUM(net_cash) as total_net_cash'),
                 DB::raw('SUM(clean_operations) as total_clean_operations'),
-                DB::raw('SUM(jeep_amount) as total_jeep_amount'),
+                DB::raw('SUM(jeep_amount) as total_jeep_amount')
             )
             ->whereYear('report_date', $tahun)
-            ->groupBy(DB::raw('YEAR(report_date)'), DB::raw('MONTH(report_date)'))
-            ->orderBy(DB::raw('YEAR(report_date)'), 'desc')
-            ->orderBy(DB::raw('MONTH(report_date)'), 'desc')
+            ->groupBy(DB::raw('YEAR(report_date)'), DB::raw('MONTH(report_date)'));
+            
+        // Gabungkan dengan net_cash terakhir
+        $data = DB::table(DB::raw("({$summary->toSql()}) as summary"))
+            ->mergeBindings($summary)
+            ->leftJoinSub($netCashPerBulan, 'net', function ($join) {
+                $join->on('summary.tahun', '=', 'net.tahun')
+                     ->on('summary.bulan', '=', 'net.bulan');
+            })
+            ->select(
+                'summary.tahun',
+                'summary.bulan',
+                'summary.total_cash',
+                'summary.total_operational',
+                'summary.total_expenditure',
+                'summary.total_clean_operations',
+                'summary.total_jeep_amount',
+                'net.net_cash_terakhir as net_cash'
+            )
+            ->orderBy('summary.tahun', 'desc')
+            ->orderBy('summary.bulan', 'desc')
             ->get();
-
-        return response()->json($data);
+            
+        if ($data->isEmpty()) {
+            return response()->json([
+                'status' => 'not_found',
+                'message' => 'Data tidak ditemukan untuk tahun yang diminta.',
+                'data' => []
+            ], 404);
+        }
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data rekap per bulan ditemukan.',
+            'data' => $data
+        ]);
     }
+
 
     public function statistik()
     {
