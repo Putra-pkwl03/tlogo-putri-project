@@ -11,7 +11,7 @@ class PaymentController extends Controller
     public function getRemainingPaymentInfo($order_id)
     {
         // $decodedOrderId = urldecode($order_id);
-        $booking = Booking::where('order_id', $order_id)->firstOrFail();
+        $booking = Booking::with(['package:id,package_name'])->where('order_id', $order_id)->firstOrFail();
 
         if ($booking->payment_type !== 'dp') {
             return response()->json(['message' => 'Bukan pembayaran DP'], 400);
@@ -23,8 +23,14 @@ class PaymentController extends Controller
             'booking_id' => $booking->booking_id,
             'order_id' => $booking->order_id,
             'customer_name' => $booking->customer_name,
+            'customer_phone' => $booking->customer_phone,
+            'gross_amount' => $booking->gross_amount,
+            'total' => $booking->gross_amount * $booking->qty,
+            'qty' => $booking->qty,
+            'deposit' => $booking->dp_amount ,
             'remaining_amount' => $remainingAmount,
             'tour_date' => $booking->tour_date,
+            'package' => $booking->package,
             'message' => 'Pembayaran belum lunas',
         ];
 
@@ -32,7 +38,7 @@ class PaymentController extends Controller
             $response['message'] = 'Pembayaran DP Lunas';
         }
     
-        return response()->json($response);
+        return response()->json($response, 200);
 
 
     }
