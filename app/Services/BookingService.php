@@ -133,7 +133,7 @@ class BookingService
             'total_price' => $order->qty * $order->gross_amount,
             'remain_amount' => ($order->gross_amount * $order->qty) - $order->dp_amount,
             'remaining_url' => $order->payment_type === 'dp'
-                ? url('/api/orders/' . urlencode($order->order_id) . '/remaining-payment')
+                ? config('remainpayment.remaining_payment_url') . '?order_id=' . urlencode($order->order_id)
                 : null,
         ];
 
