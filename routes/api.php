@@ -68,11 +68,7 @@ Route::prefix('history-ticketings')->group(function () {
 });
 
 // PENGGAJIAN 
-
-// Route::get('/salary/history/{userId}', [SalaryController::class, 'salaryHistory']);
-// Route::put('/salary/status', [SalaryController::class, 'updateSalaryStatus']);
-
-Route::prefix('salary')->group(function () {
+Route::middleware('auth:fo')->prefix('salary')->group(function () {
     Route::get('/previews', [SalaryPreviewController::class, 'index']); 
     Route::post('/previews/generate', [SalaryPreviewController::class, 'generatePreviews']); 
     Route::get('/preview/{userId}/{role}', [SalaryController::class, 'previewSalary']);

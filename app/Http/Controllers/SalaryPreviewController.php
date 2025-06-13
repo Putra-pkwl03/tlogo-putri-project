@@ -12,8 +12,17 @@ use Illuminate\Support\Facades\Log;
 
 class SalaryPreviewController extends Controller
 {
+    private function authorizeFrontOfficeOnly()
+    {
+        if (auth()->user()?->role !== 'Front Office') {
+            abort(403, 'Anda tidak memiliki akses ke fitur penggajian.');
+        }
+    }
+
+    
     public function generatePreviews()
     {
+        $this->authorizeFrontOfficeOnly();
         $tickets = Ticketing::with([
             'booking.package',
             'jeep.driver',
@@ -79,6 +88,7 @@ class SalaryPreviewController extends Controller
 
     public function index()
     {
+        $this->authorizeFrontOfficeOnly();
         $previews = SalaryPreview::with('user', 'ticketing')->get();
 
         return response()->json([
