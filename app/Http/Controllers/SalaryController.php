@@ -54,7 +54,7 @@ class SalaryController extends Controller
                         'role' => $user->role,
                         'salary' => 2000000,
                         'gaji_bulan_ini' => 'Rp 2.000.000',
-                        'payment_date' => $preview?->payment_date ?? null,
+                        'payment_date' => Carbon::now()->startOfMonth()->toDateString(),
                         'status' => $preview?->status ?? 'belum',
                     ],
                     'total_fo_share' => 2000000,

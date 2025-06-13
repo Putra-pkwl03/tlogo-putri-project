@@ -73,7 +73,7 @@ class SalaryPreviewController extends Controller
                 'ticketing_id' => null,
                 'nama' => $fo->name,
                 'role' => $fo->role,
-                'payment_date' => now()->toDateString(),
+                'payment_date' => Carbon::now()->startOfMonth()->toDateString(),
                 'status' => 'belum',
             ]);
 
