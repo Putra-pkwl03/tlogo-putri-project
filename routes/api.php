@@ -94,6 +94,7 @@ Route::post('/bookings', [BookingController::class, 'store']);
 Route::get('/bookings/{id}', [BookingController::class, 'show']);
 Route::put('/bookings/{id}', [BookingController::class, 'update']);
 Route::delete('/bookings/{order_id}', [BookingController::class, 'destroy']);
+Route::get('/count/bookings', [BookingController::class, 'countBooking']);
 
 Route::post('/midtrans-notification', [MidtransNotificationController::class, 'midtransNotif']); // midtrans notification (webhook)
 Route::get('/orders/{order_id}/remaining-payment', [PaymentController::class,'getRemainingPaymentInfo']); // remaining payment info pembayaran ke 2
