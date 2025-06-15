@@ -117,4 +117,27 @@ class BookingController extends Controller
             'message' => 'Data deleted successfully'
         ]);
     }
+
+    public function countBooking()
+    {
+        $rawData = Booking::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as total")
+            ->groupBy('month')
+            ->orderBy('month', 'desc')
+            ->get();
+            
+        $data = $rawData->map(function ($item) {
+            $carbonDate = Carbon::createFromFormat('Y-m', $item->month);
+            return [
+                'month' => $carbonDate->translatedFormat('F'),
+                'total' => $item->total
+            ];
+        });
+        
+        return response()->json([
+            'data' => $data,
+            'success' => true,
+            'message' => 'Count Found'
+        ]);
+
+    }
 }
