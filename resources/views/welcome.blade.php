@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Selamat Datang</title>
+    <title>Tlogo Putri</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
