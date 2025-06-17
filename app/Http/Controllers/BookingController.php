@@ -77,6 +77,8 @@ class BookingController extends Controller
             'booking_status' => 'nullable|in:settlement,capture,cancel,expired',
             'tour_date' => 'nullable|date',
             'start_time' => 'nullable|date_format:H:i',
+            'customer_email' => 'nullable|email',
+            'customer_phone' => 'nullable'
         ]);
         
         // if ($data->payment_status === 'paid') {
@@ -84,6 +86,9 @@ class BookingController extends Controller
         $data->booking_status = $validated['booking_status'] ?? $data->booking_status;
         $data->tour_date = $validated['tour_date'] ?? $data->tour_date;
         $data->start_time = $validated['start_time'] ?? $data->start_time;
+        $data->customer_email = $validated['customer_email'] ?? $data->customer_email;
+        $data->customer_phone = $validated['customer_phone'] ?? $data->customer_phone;
+
 
         $data->save();
     
