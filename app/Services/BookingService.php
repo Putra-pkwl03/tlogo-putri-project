@@ -53,7 +53,7 @@ class BookingService
             }
         }
         
-        $amountToPay = $isDP ? $totalAmount * 0.3 : $totalAmount;
+        $amountToPay = $isDP ? $totalAmount * 0.5 : $totalAmount;
 
         $data['dp_amount'] = $amountToPay;
         $data['is_fully_paid'] = !$isDP;

@@ -43,11 +43,13 @@ class BookingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($order_id)
     {
-        $data = Booking::with(['package:id,package_name,destination,price'])->find($id);
+        $data = Booking::with(['package:id,package_name,destination,price'])
+                ->where('order_id', $order_id)
+                ->first();
 
-        if(!$data){
+        if (!$data) {
             return response()->json([
                 'message' => 'Booking not found'
             ], 404);
@@ -77,24 +79,24 @@ class BookingController extends Controller
             'start_time' => 'nullable|date_format:H:i',
         ]);
         
-        if ($data->payment_status === 'paid') {
+        // if ($data->payment_status === 'paid') {
             
-            $data->booking_status = $validated['booking_status'] ?? $data->booking_status;
-            $data->tour_date = $validated['tour_date'] ?? $data->tour_date;
-            $data->start_time = $validated['start_time'] ?? $data->start_time;
+        $data->booking_status = $validated['booking_status'] ?? $data->booking_status;
+        $data->tour_date = $validated['tour_date'] ?? $data->tour_date;
+        $data->start_time = $validated['start_time'] ?? $data->start_time;
 
-            $data->save();
+        $data->save();
     
-            return response()->json([
-                'success' => true,
-                'message' => 'Booking updated successfully',
-                'data' => $data
-            ], 200);
-        } else {
-            return response()->json([
-                'message' => 'Booking is not fully paid'
-            ], 403);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Booking updated successfully',
+            'data' => $data
+        ], 200);
+        // } else {
+        //     return response()->json([
+        //         'message' => 'Booking is not fully paid'
+        //     ], 403);
+        // }
     }
 
     /**

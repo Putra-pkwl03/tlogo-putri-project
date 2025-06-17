@@ -173,12 +173,16 @@ class PaymentController extends Controller
         }
 
         $payment = PaymentTransaction::where('order_id', $orderId)->first();
+
         if (!$payment) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Transaksi pembayaran tidak ditemukan di database.',
-            ], 404);
+            $baseOrderId = implode('-', array_slice(explode('-', $orderId), 0, 3));
+        
+            $payment = PaymentTransaction::where('order_id', 'like', "{$baseOrderId}%")
+                        ->where('payment_for', 'remaining')
+                        ->orderByDesc('id')
+                        ->first();
         }
+
 
         // Update data payment
         $payment->status = $transactionStatus;
