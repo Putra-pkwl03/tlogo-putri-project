@@ -91,7 +91,7 @@ Route::prefix('driver-rotations')->group(function () {
 // Route::apiResource('bookings', BookingController::class) ->only(['index', 'store', 'show', 'update']);; // crud
 Route::get('/bookings', [BookingController::class, 'index']); //untuk menampilkan data pemesanan. jangan llupa migrate dulu semua seedernya
 Route::post('/bookings', [BookingController::class, 'store']);
-Route::get('/bookings/{id}', [BookingController::class, 'show']);
+Route::get('/bookings/{order_id}', [BookingController::class, 'show']);
 Route::put('/bookings/{id}', [BookingController::class, 'update']);
 Route::delete('/bookings/{order_id}', [BookingController::class, 'destroy']);
 Route::get('/count/bookings', [BookingController::class, 'countBooking']);
